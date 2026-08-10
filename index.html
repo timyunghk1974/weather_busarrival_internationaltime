@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>大埔巴士實時車機儀表板 - 極大字體版</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: #0f172a;
+      color: #f8fafc;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      height: 100vh;
+      width: 100vw;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding: 10px;
+    }
+
+    .card {
+      background: #1e293b;
+      border-radius: 14px;
+      padding: 12px 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      border: 1px solid #334155;
+      position: relative;
+      transition: order 0.3s ease;
+    }
+
+    /* 右上角切換順序按鈕 */
+    .controls {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      display: flex;
+      gap: 6px;
+      z-index: 10;
+    }
+    .btn-move {
+      background: #334155;
+      color: #38bdf8;
+      border: none;
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      font-size: 1.3rem;
+      font-weight: bold;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .btn-move:active { background: #0284c7; color: #fff; }
+
+    /* 區塊 1：時間 (極大化) */
+    #card-time { order: 1; flex: 3.5; }
+    .time-header { display: flex; flex-direction: column; }
+    .time-main { font-size: 4.0rem; font-weight: 900; color: #38bdf8; font-family: monospace; line-height: 0.95; letter-spacing: -1px; }
+    .date-main { font-size: 1.3rem; color: #cbd5e1; margin-top: 6px; font-weight: 700; }
+    .world-clocks { display: flex; justify-content: space-between; border-top: 2px solid #334155; padding-top: 8px; margin-top: 6px; }
+    .clock-item { text-align: center; }
+    .clock-label { font-size: 0.95rem; color: #94a3b8; font-weight: 600; }
+    .clock-val { font-size: 1.3rem; font-weight: 800; color: #f8fafc; font-family: monospace; }
+
+    /* 區塊 2：巴士實時到站 (極大化) */
+    #card-bus { order: 2; flex: 5.2; }
+    .bus-header { font-size: 1.3rem; font-weight: 800; color: #f59e0b; margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center; padding-right: 85px; }
+    .bus-list { display: flex; flex-direction: column; gap: 8px; justify-content: center; height: 100%; }
+    .bus-item { display: flex; justify-content: space-between; align-items: center; background: #0f172a; padding: 10px 14px; border-radius: 10px; }
+    .bus-info { display: flex; flex-direction: column; }
+    .bus-route-group { display: flex; align-items: center; gap: 8px; }
+    .bus-route { font-size: 2.0rem; font-weight: 900; color: #facc15; line-height: 1; }
+    .bus-stop { font-size: 0.95rem; color: #38bdf8; background: #1e293b; padding: 2px 8px; border-radius: 6px; font-weight: 700; }
+    .bus-dest { font-size: 1.1rem; color: #cbd5e1; font-weight: 600; margin-top: 2px; }
+    .bus-eta { font-size: 1.9rem; font-weight: 900; color: #4ade80; }
+
+    /* 區塊 3：天氣 (極大化) */
+    #card-weather { order: 3; flex: 3.3; }
+    .weather-current { display: flex; justify-content: space-between; align-items: center; }
+    .weather-title { font-size: 1.1rem; color: #94a3b8; font-weight: 600; }
+    .weather-text { font-size: 1.3rem; color: #cbd5e1; font-weight: 700; }
+    .temp-main { font-size: 3.2rem; font-weight: 900; color: #38bdf8; line-height: 1; }
+    .forecast-grid { display: flex; justify-content: space-between; border-top: 2px solid #334155; padding-top: 8px; margin-top: 4px; }
+    .forecast-item { text-align: center; font-size: 1.05rem; color: #cbd5e1; font-weight: 600; }
+    .forecast-temp { font-weight: 800; font-size: 1.25rem; margin-top: 2px; color: #f8fafc; }
+  </style>
+</head>
+<body>
+
+  <!-- 時間區塊 -->
+  <div class="card" id="card-time">
+    <div class="controls">
+      <button class="btn-move" onclick="moveCard('card-time', -1)">▲</button>
+      <button class="btn-move" onclick="moveCard('card-time', 1)">▼</button>
+    </div>
+    <div class="time-header">
+      <div class="time-main" id="local-time">00:00:00</div>
+      <div class="date-main" id="local-date">----年--月--日</div>
+    </div>
+    <div class="world-clocks">
+      <div class="clock-item">
+        <div class="clock-label">倫敦 London</div>
+        <div class="clock-val" id="time-london">00:00:00</div>
+      </div>
+      <div class="clock-item">
+        <div class="clock-label">法國 Paris</div>
+        <div class="clock-val" id="time-paris">00:00:00</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 巴士實時區塊 -->
+  <div class="card" id="card-bus">
+    <div class="controls">
+      <button class="btn-move" onclick="moveCard('card-bus', -1)">▲</button>
+      <button class="btn-move" onclick="moveCard('card-bus', 1)">▼</button>
+    </div>
+    <div class="bus-header">
+      <span>🚌 大埔巴士實時到站</span>
+    </div>
+    <div class="bus-list">
+      <!-- 大元邨 73 -->
+      <div class="bus-item">
+        <div class="bus-info">
+          <div class="bus-route-group">
+            <span class="bus-route">73</span>
+            <span class="bus-stop">大元邨</span>
+          </div>
+          <span class="bus-dest">往 華明</span>
+        </div>
+        <div class="bus-eta" id="eta-73">載入中...</div>
+      </div>
+
+      <!-- 大元邨 72K -->
+      <div class="bus-item">
+        <div class="bus-info">
+          <div class="bus-route-group">
+            <span class="bus-route">72K</span>
+            <span class="bus-stop">大元邨</span>
+          </div>
+          <span class="bus-dest">往 太和</span>
+        </div>
+        <div class="bus-eta" id="eta-72k">載入中...</div>
+      </div>
+
+      <!-- 大埔文娛中心 72 -->
+      <div class="bus-item">
+        <div class="bus-info">
+          <div class="bus-route-group">
+            <span class="bus-route">72</span>
+            <span class="bus-stop">文娛中心</span>
+          </div>
+          <span class="bus-dest">往 長沙灣</span>
+        </div>
+        <div class="bus-eta" id="eta-72">載入中...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 天氣區塊 -->
+  <div class="card" id="card-weather">
+    <div class="controls">
+      <button class="btn-move" onclick="moveCard('card-weather', -1)">▲</button>
+      <button class="btn-move" onclick="moveCard('card-weather', 1)">▼</button>
+    </div>
+    <div class="weather-current">
+      <div>
+        <div class="weather-title">大埔天氣</div>
+        <div class="weather-text" id="weather-desc">晴朗</div>
+      </div>
+      <div class="temp-main" id="current-temp">26°C</div>
+    </div>
+    <div class="forecast-grid" id="forecast-container"></div>
+  </div>
+
+  <script>
+    // 1. 動態調換順序與偏好保存
+    const cards = ['card-time', 'card-bus', 'card-weather'];
+
+    function loadOrder() {
+      const savedOrder = JSON.parse(localStorage.getItem('dash_card_order'));
+      if (savedOrder) {
+        savedOrder.forEach((id, index) => {
+          const el = document.getElementById(id);
+          if (el) el.style.order = index + 1;
+        });
+      }
+    }
+
+    function moveCard(cardId, direction) {
+      const currentOrderList = cards.map(id => ({
+        id,
+        order: parseInt(document.getElementById(id).style.order || (cards.indexOf(id) + 1))
+      })).sort((a, b) => a.order - b.order);
+
+      const index = currentOrderList.findIndex(item => item.id === cardId);
+      const targetIndex = index + direction;
+
+      if (targetIndex < 0 || targetIndex >= currentOrderList.length) return;
+
+      const tempOrder = currentOrderList[index].order;
+      currentOrderList[index].order = currentOrderList[targetIndex].order;
+      currentOrderList[targetIndex].order = tempOrder;
+
+      const newSavedOrder = [];
+      currentOrderList.sort((a, b) => a.order - b.order).forEach((item, idx) => {
+        const el = document.getElementById(item.id);
+        el.style.order = idx + 1;
+        newSavedOrder.push(item.id);
+      });
+
+      localStorage.setItem('dash_card_order', JSON.stringify(newSavedOrder));
+    }
+
+    loadOrder();
+
+    // 2. 實時時鐘 (秒位)
+    function updateClocks() {
+      const now = new Date();
+      document.getElementById('local-time').textContent = now.toLocaleTimeString('zh-HK', { hour12: false });
+      document.getElementById('local-date').textContent = now.toLocaleDateString('zh-HK', { month: '2-digit', day: '2-digit', weekday: 'short' });
+
+      document.getElementById('time-london').textContent = new Intl.DateTimeFormat('zh-HK', {
+        timeZone: 'Europe/London', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
+      }).format(now);
+
+      document.getElementById('time-paris').textContent = new Intl.DateTimeFormat('zh-HK', {
+        timeZone: 'Europe/Paris', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
+      }).format(now);
+    }
+    setInterval(updateClocks, 1000);
+    updateClocks();
+
+    // 3. 實時九巴 ETA 對接
+    const BUS_TARGETS = [
+      { stopId: 'B5A51DAF80BFC3FC', route: '73',  dir: 'O', elementId: 'eta-73' },  // 大元邨 73 往華明
+      { stopId: 'B5A51DAF80BFC3FC', route: '72K', dir: 'O', elementId: 'eta-72k' }, // 大元邨 72K 往太和
+      { stopId: 'C7EA6E2A3423DE05', route: '72',  dir: 'O', elementId: 'eta-72' }   // 大埔文娛中心 72 往長沙灣
+    ];
+
+    async function fetchKmbETA() {
+      for (const target of BUS_TARGETS) {
+        try {
+          const response = await fetch(`https://data.etabus.gov.hk/v1/transport/kmb/stop-eta/${target.stopId}`);
+          const data = await response.json();
+          
+          if (data && data.data) {
+            const matchedBus = data.data.find(b => b.route === target.route && b.dir === target.dir && b.eta);
+            
+            if (matchedBus && matchedBus.eta) {
+              const etaTime = new Date(matchedBus.eta);
+              const diffMins = Math.max(0, Math.round((etaTime - new Date()) / 60000));
+              document.getElementById(target.elementId).textContent = diffMins === 0 ? '即將到站' : `${diffMins} 分鐘`;
+            } else {
+              document.getElementById(target.elementId).textContent = '未有班次';
+            }
+          }
+        } catch (error) {
+          console.error(`Fetch error for ${target.route}:`, error);
+          document.getElementById(target.elementId).textContent = '更新失敗';
+        }
+      }
+    }
+
+    setInterval(fetchKmbETA, 20000);
+    fetchKmbETA();
+
+    // 4. 預設 5 天天氣
+    const mockDays = ['周二', '周三', '周四', '周五', '周六'];
+    document.getElementById('forecast-container').innerHTML = mockDays.map(d => `
+      <div class="forecast-item">
+        <div>${d}</div>
+        <div class="forecast-temp">26°</div>
+      </div>
+    `).join('');
+  </script>
+</body>
+</html>
