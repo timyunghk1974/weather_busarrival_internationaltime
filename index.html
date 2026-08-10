@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>大埔巴士實時車機儀表板 - 字體加大版</title>
+  <title>大埔巴士實時車機儀表板 - 溫度置中版</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -107,7 +107,6 @@
       flex: 1;
       padding: 2px 0;
     }
-    /* 加大「大埔天氣」標題字體（由 1.1rem 調大至 1.4rem） */
     .weather-title { font-size: 1.4rem; color: #38bdf8; font-weight: 800; margin-bottom: 2px; }
     
     .weather-main-group {
@@ -120,10 +119,12 @@
     .weather-text { font-size: 1.2rem; color: #f8fafc; font-weight: 800; display: flex; align-items: center; gap: 6px; }
     .weather-icon { font-size: 2.0rem; line-height: 1; }
     
+    /* 修改處：將 align-items 由 flex-start 改為 center，使溫度範圍相對於當前氣溫水平置中 */
     .temp-box {
       display: flex;
       flex-direction: column;
-      align-items: flex-start;
+      align-items: center;
+      text-align: center;
     }
     .temp-main { font-size: 2.8rem; font-weight: 900; color: #38bdf8; line-height: 1; }
     .temp-range { font-size: 0.95rem; font-weight: 800; color: #cbd5e1; margin-top: 2px; }
@@ -283,7 +284,6 @@
         </div>
         <div class="temp-box">
           <div class="temp-main" id="current-temp">--°C</div>
-          <!-- 已刪去"範圍"，直接顯示溫差數據 -->
           <div class="temp-range" id="today-temp-range">--° - --°</div>
         </div>
       </div>
@@ -513,7 +513,6 @@
           const minT = todayForecast.forecastMintemp ? todayForecast.forecastMintemp.value : '--';
           const maxT = todayForecast.forecastMaxtemp ? todayForecast.forecastMaxtemp.value : '--';
           
-          // 已將"範圍"移除
           document.getElementById('today-temp-range').textContent = `${minT}° - ${maxT}°`;
           
           const psr = todayForecast.PSR || todayForecast.forecastPSR || '中';
