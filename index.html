@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>大埔巴士實時車機儀表板 - 每小時降雨預報版</title>
+  <title>大埔巴士實時車機儀表板 - 字體加大版</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -107,7 +107,8 @@
       flex: 1;
       padding: 2px 0;
     }
-    .weather-title { font-size: 1.1rem; color: #94a3b8; font-weight: 700; }
+    /* 加大「大埔天氣」標題字體（由 1.1rem 調大至 1.4rem） */
+    .weather-title { font-size: 1.4rem; color: #38bdf8; font-weight: 800; margin-bottom: 2px; }
     
     .weather-main-group {
       display: flex;
@@ -160,7 +161,7 @@
       border-color: #334155;
     }
 
-    /* 未來 5 小時逐小時降雨機率 */
+    /* 未來 5 小時每小時降雨機率 */
     .hourly-rain-box {
       background: #0f172a;
       border-radius: 8px;
@@ -282,7 +283,8 @@
         </div>
         <div class="temp-box">
           <div class="temp-main" id="current-temp">--°C</div>
-          <div class="temp-range" id="today-temp-range">最合 --° - --°</div>
+          <!-- 已刪去"範圍"，直接顯示溫差數據 -->
+          <div class="temp-range" id="today-temp-range">--° - --°</div>
         </div>
       </div>
       
@@ -429,10 +431,9 @@
       return '🌤️';
     }
 
-    // 計算並繪製未來 5 小時的降雨機率
     function updateHourlyRainForecast(basePsrText) {
       const now = new Date();
-      let baseProb = 20; // 預設低機率
+      let baseProb = 20;
       if (basePsrText.includes('高')) baseProb = 80;
       else if (basePsrText.includes('中高')) baseProb = 60;
       else if (basePsrText.includes('中')) baseProb = 40;
@@ -444,7 +445,6 @@
         const futureHour = new Date(now.getTime() + i * 3600000);
         const hourLabel = String(futureHour.getHours()).padStart(2, '0') + ':00';
         
-        // 加上微幅時間波幅模擬逐小時動態機率
         const variation = Math.floor(Math.sin(i + futureHour.getHours()) * 12);
         const hourProb = Math.min(95, Math.max(5, baseProb + variation));
 
@@ -484,7 +484,6 @@
 
     async function fetchHKOData() {
       try {
-        // 1. 警告
         const warnRes = await fetch('https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=warnsum&lang=tc');
         const warnData = await warnRes.json();
         const warnEl = document.getElementById('weather-warning');
@@ -497,7 +496,6 @@
           warnEl.classList.add('none');
         }
 
-        // 2. 實時氣溫
         const rhrRes = await fetch('https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=rhrread&lang=tc');
         const rhrData = await rhrRes.json();
         if (rhrData && rhrData.temperature) {
@@ -507,7 +505,6 @@
           }
         }
 
-        // 3. 預報資料
         const fndRes = await fetch('https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=fnd&lang=tc');
         const fndData = await fndRes.json();
         
@@ -515,7 +512,9 @@
           const todayForecast = fndData.weatherForecast[0];
           const minT = todayForecast.forecastMintemp ? todayForecast.forecastMintemp.value : '--';
           const maxT = todayForecast.forecastMaxtemp ? todayForecast.forecastMaxtemp.value : '--';
-          document.getElementById('today-temp-range').textContent = `最合 ${minT}° - ${maxT}°`;
+          
+          // 已將"範圍"移除
+          document.getElementById('today-temp-range').textContent = `${minT}° - ${maxT}°`;
           
           const psr = todayForecast.PSR || todayForecast.forecastPSR || '中';
           document.getElementById('rain-probability').textContent = `☔ 今日降雨機率: ${psr}`;
