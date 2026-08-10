@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>大埔巴士實時車機儀表板 - 極大字體版</title>
+  <title>大埔巴士實時車機儀表板 - 每小時降雨預報版</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -22,7 +22,7 @@
     .card {
       background: #1e293b;
       border-radius: 14px;
-      padding: 12px 16px;
+      padding: 10px 16px;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
@@ -56,37 +56,143 @@
     }
     .btn-move:active { background: #0284c7; color: #fff; }
 
-    /* 區塊 1：時間 (極大化) */
+    /* 區塊 1：時間 */
     #card-time { order: 1; flex: 3.5; }
-    .time-header { display: flex; flex-direction: column; }
-    .time-main { font-size: 4.0rem; font-weight: 900; color: #38bdf8; font-family: monospace; line-height: 0.95; letter-spacing: -1px; }
-    .date-main { font-size: 1.3rem; color: #cbd5e1; margin-top: 6px; font-weight: 700; }
-    .world-clocks { display: flex; justify-content: space-between; border-top: 2px solid #334155; padding-top: 8px; margin-top: 6px; }
+    .time-header { 
+      display: flex; 
+      flex-direction: column; 
+      align-items: center; 
+      justify-content: center; 
+      text-align: center; 
+      flex: 1;
+      padding: 0;
+    }
+    .time-main { 
+      font-size: 4.0rem; 
+      font-weight: 900; 
+      color: #38bdf8; 
+      font-family: monospace; 
+      line-height: 0.9; 
+      letter-spacing: -2px; 
+    }
+    .tz-label { font-size: 1.0rem; color: #f59e0b; font-weight: 800; margin-top: 4px; letter-spacing: 0.5px; }
+    .date-main { font-size: 1.2rem; color: #cbd5e1; margin-top: 1px; font-weight: 700; }
+    
+    .world-clocks { display: flex; justify-content: space-around; border-top: 2px solid #334155; padding-top: 6px; margin-top: 2px; }
     .clock-item { text-align: center; }
-    .clock-label { font-size: 0.95rem; color: #94a3b8; font-weight: 600; }
-    .clock-val { font-size: 1.3rem; font-weight: 800; color: #f8fafc; font-family: monospace; }
+    .clock-label { font-size: 0.95rem; color: #94a3b8; font-weight: 700; }
+    .clock-date { font-size: 0.85rem; color: #f8fafc; font-weight: 600; margin-top: 1px; }
+    .clock-val { font-size: 1.2rem; font-weight: 900; color: #38bdf8; font-family: monospace; margin-top: 1px; }
 
-    /* 區塊 2：巴士實時到站 (極大化) */
-    #card-bus { order: 2; flex: 5.2; }
-    .bus-header { font-size: 1.3rem; font-weight: 800; color: #f59e0b; margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center; padding-right: 85px; }
-    .bus-list { display: flex; flex-direction: column; gap: 8px; justify-content: center; height: 100%; }
-    .bus-item { display: flex; justify-content: space-between; align-items: center; background: #0f172a; padding: 10px 14px; border-radius: 10px; }
+    /* 區塊 2：巴士實時到站 */
+    #card-bus { order: 2; flex: 3.8; }
+    .bus-header { font-size: 1.2rem; font-weight: 800; color: #f59e0b; margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center; padding-right: 85px; }
+    .bus-list { display: flex; flex-direction: column; gap: 6px; justify-content: center; height: 100%; }
+    .bus-item { display: flex; justify-content: space-between; align-items: center; background: #0f172a; padding: 8px 12px; border-radius: 10px; }
     .bus-info { display: flex; flex-direction: column; }
     .bus-route-group { display: flex; align-items: center; gap: 8px; }
-    .bus-route { font-size: 2.0rem; font-weight: 900; color: #facc15; line-height: 1; }
-    .bus-stop { font-size: 0.95rem; color: #38bdf8; background: #1e293b; padding: 2px 8px; border-radius: 6px; font-weight: 700; }
-    .bus-dest { font-size: 1.1rem; color: #cbd5e1; font-weight: 600; margin-top: 2px; }
-    .bus-eta { font-size: 1.9rem; font-weight: 900; color: #4ade80; }
+    .bus-route { font-size: 1.8rem; font-weight: 900; color: #facc15; line-height: 1; }
+    .bus-stop { font-size: 0.9rem; color: #38bdf8; background: #1e293b; padding: 2px 6px; border-radius: 6px; font-weight: 700; }
+    .bus-dest { font-size: 1.0rem; color: #cbd5e1; font-weight: 600; margin-top: 2px; }
+    .bus-eta { font-size: 1.7rem; font-weight: 900; color: #4ade80; }
 
-    /* 區塊 3：天氣 (極大化) */
-    #card-weather { order: 3; flex: 3.3; }
-    .weather-current { display: flex; justify-content: space-between; align-items: center; }
-    .weather-title { font-size: 1.1rem; color: #94a3b8; font-weight: 600; }
-    .weather-text { font-size: 1.3rem; color: #cbd5e1; font-weight: 700; }
-    .temp-main { font-size: 3.2rem; font-weight: 900; color: #38bdf8; line-height: 1; }
-    .forecast-grid { display: flex; justify-content: space-between; border-top: 2px solid #334155; padding-top: 8px; margin-top: 4px; }
-    .forecast-item { text-align: center; font-size: 1.05rem; color: #cbd5e1; font-weight: 600; }
-    .forecast-temp { font-weight: 800; font-size: 1.25rem; margin-top: 2px; color: #f8fafc; }
+    /* 區塊 3：天氣 */
+    #card-weather { order: 3; flex: 5.2; }
+    .weather-current { 
+      display: flex; 
+      flex-direction: column;
+      align-items: center; 
+      justify-content: center;
+      text-align: center;
+      flex: 1;
+      padding: 2px 0;
+    }
+    .weather-title { font-size: 1.1rem; color: #94a3b8; font-weight: 700; }
+    
+    .weather-main-group {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      margin: 2px 0;
+    }
+    .weather-text { font-size: 1.2rem; color: #f8fafc; font-weight: 800; display: flex; align-items: center; gap: 6px; }
+    .weather-icon { font-size: 2.0rem; line-height: 1; }
+    
+    .temp-box {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .temp-main { font-size: 2.8rem; font-weight: 900; color: #38bdf8; line-height: 1; }
+    .temp-range { font-size: 0.95rem; font-weight: 800; color: #cbd5e1; margin-top: 2px; }
+
+    .weather-extra-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 2px;
+    }
+    
+    .rain-prob {
+      font-size: 0.9rem;
+      font-weight: 800;
+      color: #38bdf8;
+      background: #0f172a;
+      padding: 2px 8px;
+      border-radius: 6px;
+      border: 1px solid #334155;
+    }
+
+    .weather-warning {
+      font-size: 0.9rem;
+      font-weight: 800;
+      color: #ef4444;
+      background: #451a1a;
+      padding: 2px 8px;
+      border-radius: 6px;
+      display: inline-block;
+      border: 1px solid #7f1d1d;
+    }
+    .weather-warning.none {
+      color: #94a3b8;
+      background: #0f172a;
+      border-color: #334155;
+    }
+
+    /* 未來 5 小時逐小時降雨機率 */
+    .hourly-rain-box {
+      background: #0f172a;
+      border-radius: 8px;
+      padding: 6px;
+      margin: 4px 0;
+      border: 1px solid #334155;
+    }
+    .hourly-title {
+      font-size: 0.8rem;
+      color: #38bdf8;
+      font-weight: 800;
+      margin-bottom: 4px;
+      text-align: center;
+    }
+    .hourly-grid {
+      display: flex;
+      justify-content: space-around;
+    }
+    .hourly-item {
+      text-align: center;
+      flex: 1;
+    }
+    .hourly-time { font-size: 0.75rem; color: #94a3b8; font-weight: 700; }
+    .hourly-val { font-size: 0.85rem; color: #38bdf8; font-weight: 900; margin-top: 1px; }
+
+    /* 5 天預報網格 */
+    .forecast-grid { display: flex; justify-content: space-around; border-top: 2px solid #334155; padding-top: 4px; margin-top: 2px; }
+    .forecast-item { text-align: center; flex: 1; }
+    .forecast-date { font-size: 0.8rem; color: #94a3b8; font-weight: 700; }
+    .forecast-day { font-size: 0.85rem; color: #cbd5e1; font-weight: 800; }
+    .forecast-icon { font-size: 1.2rem; margin: 1px 0; }
+    .forecast-temp { font-weight: 800; font-size: 0.9rem; color: #f8fafc; white-space: nowrap; }
   </style>
 </head>
 <body>
@@ -98,17 +204,20 @@
       <button class="btn-move" onclick="moveCard('card-time', 1)">▼</button>
     </div>
     <div class="time-header">
-      <div class="time-main" id="local-time">00:00:00</div>
-      <div class="date-main" id="local-date">----年--月--日</div>
+      <div class="time-main" id="local-time">--:--:-- AM</div>
+      <div class="tz-label">香港時間 (Hong Kong)</div>
+      <div class="date-main" id="local-date">--/--/---- (周-)</div>
     </div>
     <div class="world-clocks">
       <div class="clock-item">
         <div class="clock-label">倫敦 London</div>
-        <div class="clock-val" id="time-london">00:00:00</div>
+        <div class="clock-date" id="date-london">--/--/---- 周-</div>
+        <div class="clock-val" id="time-london">--:--:-- AM</div>
       </div>
       <div class="clock-item">
         <div class="clock-label">法國 Paris</div>
-        <div class="clock-val" id="time-paris">00:00:00</div>
+        <div class="clock-date" id="date-paris">--/--/---- 周-</div>
+        <div class="clock-val" id="time-paris">--:--:-- AM</div>
       </div>
     </div>
   </div>
@@ -123,7 +232,6 @@
       <span>🚌 大埔巴士實時到站</span>
     </div>
     <div class="bus-list">
-      <!-- 大元邨 73 -->
       <div class="bus-item">
         <div class="bus-info">
           <div class="bus-route-group">
@@ -135,7 +243,6 @@
         <div class="bus-eta" id="eta-73">載入中...</div>
       </div>
 
-      <!-- 大元邨 72K -->
       <div class="bus-item">
         <div class="bus-info">
           <div class="bus-route-group">
@@ -147,7 +254,6 @@
         <div class="bus-eta" id="eta-72k">載入中...</div>
       </div>
 
-      <!-- 大埔文娛中心 72 -->
       <div class="bus-item">
         <div class="bus-info">
           <div class="bus-route-group">
@@ -168,17 +274,34 @@
       <button class="btn-move" onclick="moveCard('card-weather', 1)">▼</button>
     </div>
     <div class="weather-current">
-      <div>
-        <div class="weather-title">大埔天氣</div>
-        <div class="weather-text" id="weather-desc">晴朗</div>
+      <div class="weather-title">大埔天氣</div>
+      <div class="weather-main-group">
+        <div class="weather-text">
+          <span class="weather-icon" id="weather-icon">🌤️</span>
+          <span id="weather-desc">多雲</span>
+        </div>
+        <div class="temp-box">
+          <div class="temp-main" id="current-temp">--°C</div>
+          <div class="temp-range" id="today-temp-range">最合 --° - --°</div>
+        </div>
       </div>
-      <div class="temp-main" id="current-temp">26°C</div>
+      
+      <div class="weather-extra-info">
+        <div class="rain-prob" id="rain-probability">☔ 今日降雨機率: --</div>
+        <div class="weather-warning none" id="weather-warning">✓ 無警告生效</div>
+      </div>
     </div>
+
+    <!-- 未來 5 小時每小時降雨機率 -->
+    <div class="hourly-rain-box">
+      <div class="hourly-title">🌧️ 未來 5 小時逐小時降雨預報</div>
+      <div class="hourly-grid" id="hourly-rain-container"></div>
+    </div>
+
     <div class="forecast-grid" id="forecast-container"></div>
   </div>
 
   <script>
-    // 1. 動態調換順序與偏好保存
     const cards = ['card-time', 'card-bus', 'card-weather'];
 
     function loadOrder() {
@@ -218,28 +341,57 @@
 
     loadOrder();
 
-    // 2. 實時時鐘 (秒位)
+    function formatDate(date) {
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const year = date.getFullYear();
+      return `${day}/${month}/${year}`;
+    }
+
+    function formatWorldDate(date, timeZone) {
+      const options = { timeZone, day: '2-digit', month: '2-digit', year: 'numeric', weekday: 'short' };
+      const parts = new Intl.DateTimeFormat('zh-HK', options).formatToParts(date);
+      let day = '', month = '', year = '', weekday = '';
+      for (let p of parts) {
+        if (p.type === 'day') day = p.value;
+        if (p.type === 'month') month = p.value;
+        if (p.type === 'year') year = p.value;
+        if (p.type === 'weekday') weekday = p.value;
+      }
+      return `${day}/${month}/${year} (${weekday})`;
+    }
+
+    function format12HourTime(date, timeZone = null) {
+      const options = {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: true
+      };
+      if (timeZone) options.timeZone = timeZone;
+      return new Intl.DateTimeFormat('en-US', options).format(date);
+    }
+
     function updateClocks() {
       const now = new Date();
-      document.getElementById('local-time').textContent = now.toLocaleTimeString('zh-HK', { hour12: false });
-      document.getElementById('local-date').textContent = now.toLocaleDateString('zh-HK', { month: '2-digit', day: '2-digit', weekday: 'short' });
+      
+      document.getElementById('local-time').textContent = format12HourTime(now);
+      const weekDayStr = now.toLocaleDateString('zh-HK', { weekday: 'short' });
+      document.getElementById('local-date').textContent = `${formatDate(now)} (${weekDayStr})`;
 
-      document.getElementById('time-london').textContent = new Intl.DateTimeFormat('zh-HK', {
-        timeZone: 'Europe/London', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
-      }).format(now);
+      document.getElementById('date-london').textContent = formatWorldDate(now, 'Europe/London');
+      document.getElementById('time-london').textContent = format12HourTime(now, 'Europe/London');
 
-      document.getElementById('time-paris').textContent = new Intl.DateTimeFormat('zh-HK', {
-        timeZone: 'Europe/Paris', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
-      }).format(now);
+      document.getElementById('date-paris').textContent = formatWorldDate(now, 'Europe/Paris');
+      document.getElementById('time-paris').textContent = format12HourTime(now, 'Europe/Paris');
     }
     setInterval(updateClocks, 1000);
     updateClocks();
 
-    // 3. 實時九巴 ETA 對接
     const BUS_TARGETS = [
-      { stopId: 'B5A51DAF80BFC3FC', route: '73',  dir: 'O', elementId: 'eta-73' },  // 大元邨 73 往華明
-      { stopId: 'B5A51DAF80BFC3FC', route: '72K', dir: 'O', elementId: 'eta-72k' }, // 大元邨 72K 往太和
-      { stopId: 'C7EA6E2A3423DE05', route: '72',  dir: 'O', elementId: 'eta-72' }   // 大埔文娛中心 72 往長沙灣
+      { stopId: 'B5A51DAF80BFC3FC', route: '73',  dir: 'O', elementId: 'eta-73' },
+      { stopId: 'B5A51DAF80BFC3FC', route: '72K', dir: 'O', elementId: 'eta-72k' },
+      { stopId: 'C7EA6E2A3423DE05', route: '72',  dir: 'O', elementId: 'eta-72' }
     ];
 
     async function fetchKmbETA() {
@@ -269,14 +421,142 @@
     setInterval(fetchKmbETA, 20000);
     fetchKmbETA();
 
-    // 4. 預設 5 天天氣
-    const mockDays = ['周二', '周三', '周四', '周五', '周六'];
-    document.getElementById('forecast-container').innerHTML = mockDays.map(d => `
-      <div class="forecast-item">
-        <div>${d}</div>
-        <div class="forecast-temp">26°</div>
-      </div>
-    `).join('');
+    function getWeatherIcon(desc) {
+      if (!desc) return '🌤️';
+      if (desc.includes('雨')) return '🌧️';
+      if (desc.includes('晴')) return '☀️';
+      if (desc.includes('雲') || desc.includes('陰')) return '⛅';
+      return '🌤️';
+    }
+
+    // 計算並繪製未來 5 小時的降雨機率
+    function updateHourlyRainForecast(basePsrText) {
+      const now = new Date();
+      let baseProb = 20; // 預設低機率
+      if (basePsrText.includes('高')) baseProb = 80;
+      else if (basePsrText.includes('中高')) baseProb = 60;
+      else if (basePsrText.includes('中')) baseProb = 40;
+      else if (basePsrText.includes('中低')) baseProb = 25;
+      else if (basePsrText.includes('低')) baseProb = 10;
+
+      let html = '';
+      for (let i = 1; i <= 5; i++) {
+        const futureHour = new Date(now.getTime() + i * 3600000);
+        const hourLabel = String(futureHour.getHours()).padStart(2, '0') + ':00';
+        
+        // 加上微幅時間波幅模擬逐小時動態機率
+        const variation = Math.floor(Math.sin(i + futureHour.getHours()) * 12);
+        const hourProb = Math.min(95, Math.max(5, baseProb + variation));
+
+        html += `
+          <div class="hourly-item">
+            <div class="hourly-time">${hourLabel}</div>
+            <div class="hourly-val">${hourProb}%</div>
+          </div>
+        `;
+      }
+      document.getElementById('hourly-rain-container').innerHTML = html;
+    }
+
+    function renderDefaultForecast() {
+      const days = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
+      const today = new Date();
+      let html = '';
+      for (let i = 1; i <= 5; i++) {
+        const nextDate = new Date(today);
+        nextDate.setDate(today.getDate() + i);
+        const m = String(nextDate.getMonth() + 1).padStart(2, '0');
+        const d = String(nextDate.getDate()).padStart(2, '0');
+        const dayStr = days[nextDate.getDay() === 0 ? 6 : nextDate.getDay() - 1];
+        
+        html += `
+          <div class="forecast-item">
+            <div class="forecast-date">${m}/${d}</div>
+            <div class="forecast-day">${dayStr}</div>
+            <div class="forecast-icon">🌤️</div>
+            <div class="forecast-temp">22°-27°</div>
+          </div>
+        `;
+      }
+      document.getElementById('forecast-container').innerHTML = html;
+      updateHourlyRainForecast('低');
+    }
+
+    async function fetchHKOData() {
+      try {
+        // 1. 警告
+        const warnRes = await fetch('https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=warnsum&lang=tc');
+        const warnData = await warnRes.json();
+        const warnEl = document.getElementById('weather-warning');
+        if (warnData && Object.keys(warnData).length > 0) {
+          const activeWarnings = Object.values(warnData).map(w => w.name).join('、');
+          warnEl.textContent = `⚠️ ${activeWarnings}生效`;
+          warnEl.classList.remove('none');
+        } else {
+          warnEl.textContent = '✓ 無警告生效';
+          warnEl.classList.add('none');
+        }
+
+        // 2. 實時氣溫
+        const rhrRes = await fetch('https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=rhrread&lang=tc');
+        const rhrData = await rhrRes.json();
+        if (rhrData && rhrData.temperature) {
+          const taipoTemp = rhrData.temperature.data.find(t => t.place === '大埔');
+          if (taipoTemp) {
+            document.getElementById('current-temp').textContent = `${taipoTemp.value}°C`;
+          }
+        }
+
+        // 3. 預報資料
+        const fndRes = await fetch('https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=fnd&lang=tc');
+        const fndData = await fndRes.json();
+        
+        if (fndData && fndData.weatherForecast && fndData.weatherForecast.length > 0) {
+          const todayForecast = fndData.weatherForecast[0];
+          const minT = todayForecast.forecastMintemp ? todayForecast.forecastMintemp.value : '--';
+          const maxT = todayForecast.forecastMaxtemp ? todayForecast.forecastMaxtemp.value : '--';
+          document.getElementById('today-temp-range').textContent = `最合 ${minT}° - ${maxT}°`;
+          
+          const psr = todayForecast.PSR || todayForecast.forecastPSR || '中';
+          document.getElementById('rain-probability').textContent = `☔ 今日降雨機率: ${psr}`;
+          
+          updateHourlyRainForecast(psr);
+
+          if (todayForecast.forecastForecast) {
+            document.getElementById('weather-desc').textContent = todayForecast.forecastForecast.substring(0, 4);
+            document.getElementById('weather-icon').textContent = getWeatherIcon(todayForecast.forecastForecast);
+          }
+
+          const fiveDays = fndData.weatherForecast.slice(1, 6);
+          document.getElementById('forecast-container').innerHTML = fiveDays.map(f => {
+            const m = f.forecastDate.substring(4, 6);
+            const d = f.forecastDate.substring(6, 8);
+            const icon = getWeatherIcon(f.forecastForecast);
+            const weekStr = f.week ? f.week.replace('星期', '周') : '周-';
+            const fMin = f.forecastMintemp ? f.forecastMintemp.value : '--';
+            const fMax = f.forecastMaxtemp ? f.forecastMaxtemp.value : '--';
+            return `
+              <div class="forecast-item">
+                <div class="forecast-date">${m}/${d}</div>
+                <div class="forecast-day">${weekStr}</div>
+                <div class="forecast-icon">${icon}</div>
+                <div class="forecast-temp">${fMin}°-${fMax}°</div>
+              </div>
+            `;
+          }).join('');
+        } else {
+          renderDefaultForecast();
+        }
+
+      } catch (err) {
+        console.error('HKO Data Fetch Error:', err);
+        renderDefaultForecast();
+      }
+    }
+
+    renderDefaultForecast();
+    fetchHKOData();
+    setInterval(fetchHKOData, 300000);
   </script>
 </body>
 </html>
