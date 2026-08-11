@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>大埔巴士實時車機儀表板 - 272E 新增版</title>
+  <title>大埔巴士實時車機儀表板 - 均等 Full Screen 版</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     
@@ -23,7 +23,9 @@
       padding: 1.2vh 1.2vw;
     }
 
+    /* 三個卡片均等瓜分螢幕區域 */
     .card {
+      flex: 1; /* 設定均等比例 (1:1:1) */
       background: #1e293b;
       border-radius: 12px;
       padding: 1.2vh 1.5vw;
@@ -62,7 +64,7 @@
     .btn-move:active { background: #0284c7; color: #fff; }
 
     /* 區塊 1：時間 */
-    #card-time { order: 1; flex: 3.2; }
+    #card-time { order: 1; }
     .time-header { 
       display: flex; 
       flex-direction: column; 
@@ -90,7 +92,7 @@
     .clock-val { font-size: clamp(0.85rem, 2.2vh, 1.2rem); font-weight: 900; color: #38bdf8; font-family: monospace; }
 
     /* 區塊 2：巴士實時到站 */
-    #card-bus { order: 2; flex: 5.5; }
+    #card-bus { order: 2; }
     .bus-header { font-size: clamp(0.85rem, 2vh, 1.1rem); font-weight: 800; color: #f59e0b; display: flex; justify-content: space-between; align-items: center; }
     .bus-list { display: flex; flex-direction: column; gap: 0.6vh; justify-content: space-evenly; height: 100%; }
     .bus-item { display: flex; justify-content: space-between; align-items: center; background: #0f172a; padding: 0.5vh 10px; border-radius: 8px; }
@@ -104,7 +106,7 @@
     .bus-eta-sub { font-size: clamp(0.65rem, 1.5vh, 0.8rem); font-weight: 700; color: #94a3b8; }
 
     /* 區塊 3：天氣 */
-    #card-weather { order: 3; flex: 4.8; }
+    #card-weather { order: 3; }
     .weather-current { 
       display: flex; 
       flex-direction: column;
@@ -240,7 +242,7 @@
         </div>
       </div>
 
-      <!-- 272E 太和 (新增) -->
+      <!-- 272E 太和 -->
       <div class="bus-item">
         <div class="bus-info">
           <div class="bus-route-group">
@@ -475,7 +477,6 @@
       return '🌤️';
     }
 
-    // 抓取真實 Open-Meteo 大埔地區逐小時降雨機率（使用本地時間對齊）
     async function fetchHourlyRainForecast() {
       try {
         const url = 'https://api.open-meteo.com/v1/forecast?latitude=22.45&longitude=114.16&hourly=precipitation_probability&timezone=Asia%2FHong_Kong';
