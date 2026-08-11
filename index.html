@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>大埔巴士實時車機儀表板 - CORS修復版</title>
+  <title>大埔巴士實時車機儀表板 - 完整版</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -85,16 +85,18 @@
     .clock-val { font-size: 1.2rem; font-weight: 900; color: #38bdf8; font-family: monospace; margin-top: 1px; }
 
     /* 區塊 2：巴士實時到站 */
-    #card-bus { order: 2; flex: 3.8; }
+    #card-bus { order: 2; flex: 4.5; }
     .bus-header { font-size: 1.2rem; font-weight: 800; color: #f59e0b; margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center; padding-right: 85px; }
     .bus-list { display: flex; flex-direction: column; gap: 6px; justify-content: center; height: 100%; }
-    .bus-item { display: flex; justify-content: space-between; align-items: center; background: #0f172a; padding: 8px 12px; border-radius: 10px; }
+    .bus-item { display: flex; justify-content: space-between; align-items: center; background: #0f172a; padding: 6px 12px; border-radius: 10px; }
     .bus-info { display: flex; flex-direction: column; }
     .bus-route-group { display: flex; align-items: center; gap: 8px; }
-    .bus-route { font-size: 1.8rem; font-weight: 900; color: #facc15; line-height: 1; }
-    .bus-stop { font-size: 0.9rem; color: #38bdf8; background: #1e293b; padding: 2px 6px; border-radius: 6px; font-weight: 700; }
-    .bus-dest { font-size: 1.0rem; color: #cbd5e1; font-weight: 600; margin-top: 2px; }
-    .bus-eta { font-size: 1.7rem; font-weight: 900; color: #4ade80; }
+    .bus-route { font-size: 1.6rem; font-weight: 900; color: #facc15; line-height: 1; }
+    .bus-stop { font-size: 0.85rem; color: #38bdf8; background: #1e293b; padding: 2px 6px; border-radius: 6px; font-weight: 700; }
+    .bus-dest { font-size: 0.95rem; color: #cbd5e1; font-weight: 600; margin-top: 2px; }
+    .bus-eta-group { text-align: right; }
+    .bus-eta-main { font-size: 1.4rem; font-weight: 900; color: #4ade80; }
+    .bus-eta-sub { font-size: 0.85rem; font-weight: 700; color: #94a3b8; }
 
     /* 區塊 3：天氣 */
     #card-weather { order: 3; flex: 5.2; }
@@ -233,6 +235,7 @@
       <span>🚌 大埔巴士實時到站</span>
     </div>
     <div class="bus-list">
+      <!-- 73 華明 -->
       <div class="bus-item">
         <div class="bus-info">
           <div class="bus-route-group">
@@ -241,9 +244,13 @@
           </div>
           <span class="bus-dest">往 華明</span>
         </div>
-        <div class="bus-eta" id="eta-73">載入中...</div>
+        <div class="bus-eta-group">
+          <div class="bus-eta-main" id="eta-73-1">載入中...</div>
+          <div class="bus-eta-sub" id="eta-73-2">--</div>
+        </div>
       </div>
 
+      <!-- 72K 太和 -->
       <div class="bus-item">
         <div class="bus-info">
           <div class="bus-route-group">
@@ -252,9 +259,13 @@
           </div>
           <span class="bus-dest">往 太和</span>
         </div>
-        <div class="bus-eta" id="eta-72k">載入中...</div>
+        <div class="bus-eta-group">
+          <div class="bus-eta-main" id="eta-72k-1">載入中...</div>
+          <div class="bus-eta-sub" id="eta-72k-2">--</div>
+        </div>
       </div>
 
+      <!-- 72 長沙灣 -->
       <div class="bus-item">
         <div class="bus-info">
           <div class="bus-route-group">
@@ -263,7 +274,10 @@
           </div>
           <span class="bus-dest">往 長沙灣</span>
         </div>
-        <div class="bus-eta" id="eta-72">載入中...</div>
+        <div class="bus-eta-group">
+          <div class="bus-eta-main" id="eta-72-1">載入中...</div>
+          <div class="bus-eta-sub" id="eta-72-2">--</div>
+        </div>
       </div>
     </div>
   </div>
@@ -389,12 +403,6 @@
     setInterval(updateClocks, 1000);
     updateClocks();
 
-    const BUS_TARGETS = [
-      { stopId: 'B5A51DAF80BFC3FC', route: '73',  dir: 'O', elementId: 'eta-73' },
-      { stopId: 'B5A51DAF80BFC3FC', route: '72K', dir: 'O', elementId: 'eta-72k' },
-      { stopId: 'C7EA6E2A3423DE05', route: '72',  dir: 'O', elementId: 'eta-72' }
-    ];
-
     /* 雙路徑 Fetch：直連失敗時自動轉接 CORS Proxy 代理 */
     async function fetchWithFallback(url) {
       try {
@@ -403,36 +411,85 @@
       } catch (e) {
         console.warn('Direct fetch failed, trying CORS proxy...');
       }
-      // 代理備援方案
       const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(url)}`;
       const proxyRes = await fetch(proxyUrl);
       return await proxyRes.json();
     }
 
+    /* 升級版巴士實時查詢邏輯 */
+    const BUS_TARGETS = [
+      { idPrefix: 'eta-73',  route: '73',  exactStopId: 'B5A51DAF80BFC3FC', searchName: '大元邨', dest: '華明' },
+      { idPrefix: 'eta-72k', route: '72K', exactStopId: 'B5A51DAF80BFC3FC', searchName: '大元邨', dest: '太和' },
+      { idPrefix: 'eta-72',  route: '72',  exactStopId: 'C7EA6E2A3423DE05', searchName: '大埔文娛中心', dest: '長沙灣' }
+    ];
+
     async function fetchKmbETA() {
       for (const target of BUS_TARGETS) {
         try {
-          const rawUrl = `https://data.etabus.gov.hk/v1/transport/kmb/stop-eta/${target.stopId}`;
-          const data = await fetchWithFallback(rawUrl);
-          
-          if (data && data.data && data.data.length > 0) {
-            // 過濾並取得正確路線與方向的最近班次
-            const matchedBuses = data.data.filter(b => b.route === target.route && b.dir === target.dir && b.eta);
-            
-            if (matchedBuses.length > 0) {
-              const etaTime = new Date(matchedBuses[0].eta);
-              const diffMins = Math.max(0, Math.round((etaTime - new Date()) / 60000));
-              document.getElementById(target.elementId).textContent = diffMins === 0 ? '即將到站' : `${diffMins} 分鐘`;
-            } else {
-              document.getElementById(target.elementId).textContent = '尾班車已過';
-            }
-          } else {
-            document.getElementById(target.elementId).textContent = '未有班次';
+          let busList = [];
+
+          // 1. 先用精確 Stop ID 直接讀取
+          const url = `https://data.etabus.gov.hk/v1/transport/kmb/stop-eta/${target.exactStopId}`;
+          const data = await fetchWithFallback(url);
+
+          if (data && data.data) {
+            busList = data.data.filter(b => b.route === target.route && b.eta && b.dest_tc.includes(target.dest));
           }
+
+          // 2. 備用搜尋機制
+          if (busList.length === 0) {
+            if (!window.allStops) {
+              const stopData = await fetchWithFallback('https://data.etabus.gov.hk/v1/transport/kmb/stop');
+              if (stopData && stopData.data) window.allStops = stopData.data;
+            }
+
+            if (window.allStops) {
+              const targetStops = window.allStops
+                .filter(s => s.name_tc && s.name_tc.includes(target.searchName))
+                .map(s => s.stop);
+
+              for (let stopId of targetStops) {
+                const etaData = await fetchWithFallback(`https://data.etabus.gov.hk/v1/transport/kmb/stop-eta/${stopId}`);
+                if (etaData && etaData.data) {
+                  const buses = etaData.data.filter(b => b.route === target.route && b.eta && b.dest_tc.includes(target.dest));
+                  busList = busList.concat(buses);
+                }
+              }
+            }
+          }
+
+          // 時間排序與畫面渲染
+          busList.sort((a, b) => new Date(a.eta) - new Date(b.eta));
+
+          if (busList.length > 0) {
+            updateETADisplay(`${target.idPrefix}-1`, busList[0].eta);
+            updateETADisplay(`${target.idPrefix}-2`, busList[1] ? busList[1].eta : null, true);
+          } else {
+            document.getElementById(`${target.idPrefix}-1`).textContent = '暫無班次';
+            document.getElementById(`${target.idPrefix}-2`).textContent = '--';
+          }
+
         } catch (error) {
           console.error(`Fetch error for ${target.route}:`, error);
-          document.getElementById(target.elementId).textContent = '連線失敗';
+          document.getElementById(`${target.idPrefix}-1`).textContent = '連線失敗';
         }
+      }
+    }
+
+    function updateETADisplay(elementId, etaISO, isSub = false) {
+      const el = document.getElementById(elementId);
+      if (!etaISO) {
+        el.textContent = '--';
+        return;
+      }
+      const diffMins = Math.round((new Date(etaISO) - new Date()) / 60000);
+
+      if (diffMins <= 0) {
+        el.textContent = '即將到站';
+        if (!isSub) el.style.color = '#facc15';
+      } else {
+        el.textContent = isSub ? `次班 ${diffMins}分` : `${diffMins} 分鐘`;
+        if (!isSub) el.style.color = '#4ade80';
       }
     }
 
