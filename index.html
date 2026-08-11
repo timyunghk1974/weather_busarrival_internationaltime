@@ -78,11 +78,12 @@
     .tz-label { font-size: 1.0rem; color: #f59e0b; font-weight: 800; margin-top: 4px; letter-spacing: 0.5px; }
     .date-main { font-size: 1.2rem; color: #cbd5e1; margin-top: 1px; font-weight: 700; }
     
-    .world-clocks { display: flex; justify-content: space-around; border-top: 2px solid #334155; padding-top: 6px; margin-top: 2px; }
-    .clock-item { text-align: center; }
-    .clock-label { font-size: 0.95rem; color: #94a3b8; font-weight: 700; }
-    .clock-date { font-size: 0.85rem; color: #f8fafc; font-weight: 600; margin-top: 1px; }
-    .clock-val { font-size: 1.2rem; font-weight: 900; color: #38bdf8; font-family: monospace; margin-top: 1px; }
+    /* 世界時鐘 - 保持較大字體，時間回復原色 #38bdf8 */
+    .world-clocks { display: flex; justify-content: space-around; border-top: 2px solid #334155; padding-top: 8px; margin-top: 2px; }
+    .clock-item { text-align: center; flex: 1; }
+    .clock-label { font-size: 1.15rem; color: #38bdf8; font-weight: 900; letter-spacing: 0.5px; }
+    .clock-date { font-size: 0.95rem; color: #cbd5e1; font-weight: 700; margin-top: 2px; }
+    .clock-val { font-size: 1.5rem; font-weight: 900; color: #38bdf8; font-family: monospace; margin-top: 2px; }
 
     /* 區塊 2：巴士實時到站 */
     #card-bus { order: 2; flex: 4.5; }
@@ -403,7 +404,6 @@
     setInterval(updateClocks, 1000);
     updateClocks();
 
-    /* 雙路徑 Fetch：直連失敗時自動轉接 CORS Proxy 代理 */
     async function fetchWithFallback(url) {
       try {
         const res = await fetch(url);
@@ -416,7 +416,6 @@
       return await proxyRes.json();
     }
 
-    /* 升級版巴士實時查詢邏輯 */
     const BUS_TARGETS = [
       { idPrefix: 'eta-73',  route: '73',  exactStopId: 'B5A51DAF80BFC3FC', searchName: '大元邨', dest: '華明' },
       { idPrefix: 'eta-72k', route: '72K', exactStopId: 'B5A51DAF80BFC3FC', searchName: '大元邨', dest: '太和' },
@@ -428,7 +427,6 @@
         try {
           let busList = [];
 
-          // 1. 先用精確 Stop ID 直接讀取
           const url = `https://data.etabus.gov.hk/v1/transport/kmb/stop-eta/${target.exactStopId}`;
           const data = await fetchWithFallback(url);
 
@@ -436,7 +434,6 @@
             busList = data.data.filter(b => b.route === target.route && b.eta && b.dest_tc.includes(target.dest));
           }
 
-          // 2. 備用搜尋機制
           if (busList.length === 0) {
             if (!window.allStops) {
               const stopData = await fetchWithFallback('https://data.etabus.gov.hk/v1/transport/kmb/stop');
@@ -458,7 +455,6 @@
             }
           }
 
-          // 時間排序與畫面渲染
           busList.sort((a, b) => new Date(a.eta) - new Date(b.eta));
 
           if (busList.length > 0) {
