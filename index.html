@@ -2,52 +2,57 @@
 <html lang="zh-HK">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>大埔巴士實時車機儀表板 - 完整版</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>大埔巴士實時車機儀表板 - 自適應全螢幕版</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
+    
+    html, body {
+      width: 100vw;
+      height: 100vh;
       background-color: #0f172a;
       color: #f8fafc;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      height: 100vh;
-      width: 100vw;
       overflow: hidden;
+    }
+
+    body {
       display: flex;
       flex-direction: column;
-      gap: 10px;
-      padding: 10px;
+      gap: 1.2vh;
+      padding: 1.2vh 1.2vw;
     }
 
     .card {
       background: #1e293b;
-      border-radius: 14px;
-      padding: 10px 16px;
+      border-radius: 12px;
+      padding: 1.2vh 1.5vw;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
       border: 1px solid #334155;
       position: relative;
       transition: order 0.3s ease;
+      min-height: 0; /* 防止子元素溢出 */
     }
 
     /* 右上角切換順序按鈕 */
     .controls {
       position: absolute;
-      top: 8px;
-      right: 8px;
+      top: 6px;
+      right: 6px;
       display: flex;
-      gap: 6px;
+      gap: 4px;
       z-index: 10;
     }
     .btn-move {
       background: #334155;
       color: #38bdf8;
       border: none;
-      width: 36px;
-      height: 36px;
-      border-radius: 8px;
-      font-size: 1.3rem;
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      font-size: 0.9rem;
       font-weight: bold;
       cursor: pointer;
       display: flex;
@@ -65,39 +70,38 @@
       justify-content: center; 
       text-align: center; 
       flex: 1;
-      padding: 0;
     }
     .time-main { 
-      font-size: 4.0rem; 
+      font-size: clamp(2.2rem, 7vh, 4.2rem); 
       font-weight: 900; 
       color: #38bdf8; 
       font-family: monospace; 
-      line-height: 0.9; 
-      letter-spacing: -2px; 
+      line-height: 1; 
+      letter-spacing: -1px; 
     }
-    .tz-label { font-size: 1.0rem; color: #f59e0b; font-weight: 800; margin-top: 4px; letter-spacing: 0.5px; }
-    .date-main { font-size: 1.2rem; color: #cbd5e1; margin-top: 1px; font-weight: 700; }
+    .tz-label { font-size: clamp(0.75rem, 2vh, 1.0rem); color: #f59e0b; font-weight: 800; margin-top: 2px; }
+    .date-main { font-size: clamp(0.85rem, 2.2vh, 1.2rem); color: #cbd5e1; font-weight: 700; }
     
-    /* 世界時鐘 - 保持較大字體，時間回復原色 #38bdf8 */
-    .world-clocks { display: flex; justify-content: space-around; border-top: 2px solid #334155; padding-top: 8px; margin-top: 2px; }
+    /* 世界時鐘 */
+    .world-clocks { display: flex; justify-content: space-around; border-top: 1px solid #334155; padding-top: 4px; }
     .clock-item { text-align: center; flex: 1; }
-    .clock-label { font-size: 1.15rem; color: #38bdf8; font-weight: 900; letter-spacing: 0.5px; }
-    .clock-date { font-size: 0.95rem; color: #cbd5e1; font-weight: 700; margin-top: 2px; }
-    .clock-val { font-size: 1.5rem; font-weight: 900; color: #38bdf8; font-family: monospace; margin-top: 2px; }
+    .clock-label { font-size: clamp(0.8rem, 2vh, 1.15rem); color: #38bdf8; font-weight: 900; }
+    .clock-date { font-size: clamp(0.7rem, 1.6vh, 0.95rem); color: #cbd5e1; font-weight: 700; }
+    .clock-val { font-size: clamp(0.95rem, 2.5vh, 1.4rem); font-weight: 900; color: #38bdf8; font-family: monospace; }
 
     /* 區塊 2：巴士實時到站 */
     #card-bus { order: 2; flex: 4.5; }
-    .bus-header { font-size: 1.2rem; font-weight: 800; color: #f59e0b; margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center; padding-right: 85px; }
-    .bus-list { display: flex; flex-direction: column; gap: 6px; justify-content: center; height: 100%; }
-    .bus-item { display: flex; justify-content: space-between; align-items: center; background: #0f172a; padding: 6px 12px; border-radius: 10px; }
+    .bus-header { font-size: clamp(0.9rem, 2.2vh, 1.2rem); font-weight: 800; color: #f59e0b; display: flex; justify-content: space-between; align-items: center; }
+    .bus-list { display: flex; flex-direction: column; gap: 0.8vh; justify-content: space-evenly; height: 100%; }
+    .bus-item { display: flex; justify-content: space-between; align-items: center; background: #0f172a; padding: 0.6vh 10px; border-radius: 8px; }
     .bus-info { display: flex; flex-direction: column; }
-    .bus-route-group { display: flex; align-items: center; gap: 8px; }
-    .bus-route { font-size: 1.6rem; font-weight: 900; color: #facc15; line-height: 1; }
-    .bus-stop { font-size: 0.85rem; color: #38bdf8; background: #1e293b; padding: 2px 6px; border-radius: 6px; font-weight: 700; }
-    .bus-dest { font-size: 0.95rem; color: #cbd5e1; font-weight: 600; margin-top: 2px; }
+    .bus-route-group { display: flex; align-items: center; gap: 6px; }
+    .bus-route { font-size: clamp(1.2rem, 3vh, 1.6rem); font-weight: 900; color: #facc15; line-height: 1; }
+    .bus-stop { font-size: clamp(0.7rem, 1.6vh, 0.85rem); color: #38bdf8; background: #1e293b; padding: 1px 5px; border-radius: 4px; font-weight: 700; }
+    .bus-dest { font-size: clamp(0.75rem, 1.8vh, 0.95rem); color: #cbd5e1; font-weight: 600; }
     .bus-eta-group { text-align: right; }
-    .bus-eta-main { font-size: 1.4rem; font-weight: 900; color: #4ade80; }
-    .bus-eta-sub { font-size: 0.85rem; font-weight: 700; color: #94a3b8; }
+    .bus-eta-main { font-size: clamp(1.0rem, 2.6vh, 1.4rem); font-weight: 900; color: #4ade80; }
+    .bus-eta-sub { font-size: clamp(0.7rem, 1.6vh, 0.85rem); font-weight: 700; color: #94a3b8; }
 
     /* 區塊 3：天氣 */
     #card-weather { order: 3; flex: 5.2; }
@@ -108,95 +112,51 @@
       justify-content: center;
       text-align: center;
       flex: 1;
-      padding: 2px 0;
     }
-    .weather-title { font-size: 1.4rem; color: #38bdf8; font-weight: 800; margin-bottom: 2px; }
+    .weather-title { font-size: clamp(0.95rem, 2.4vh, 1.3rem); color: #38bdf8; font-weight: 800; }
     
     .weather-main-group {
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 16px;
-      margin: 2px 0;
+      gap: 12px;
     }
-    .weather-text { font-size: 1.2rem; color: #f8fafc; font-weight: 800; display: flex; align-items: center; gap: 6px; }
-    .weather-icon { font-size: 2.0rem; line-height: 1; }
+    .weather-text { font-size: clamp(0.9rem, 2.2vh, 1.2rem); color: #f8fafc; font-weight: 800; display: flex; align-items: center; gap: 4px; }
+    .weather-icon { font-size: clamp(1.4rem, 3.5vh, 2.0rem); line-height: 1; }
     
-    .temp-box {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-    }
-    .temp-main { font-size: 2.8rem; font-weight: 900; color: #38bdf8; line-height: 1; }
-    .temp-range { font-size: 0.95rem; font-weight: 800; color: #cbd5e1; margin-top: 2px; }
+    .temp-box { display: flex; flex-direction: column; align-items: center; }
+    .temp-main { font-size: clamp(1.8rem, 4.5vh, 2.8rem); font-weight: 900; color: #38bdf8; line-height: 1; }
+    .temp-range { font-size: clamp(0.75rem, 1.8vh, 0.95rem); font-weight: 800; color: #cbd5e1; }
 
-    .weather-extra-info {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-top: 2px;
-    }
-    
-    .rain-prob {
-      font-size: 0.9rem;
-      font-weight: 800;
-      color: #38bdf8;
-      background: #0f172a;
-      padding: 2px 8px;
-      border-radius: 6px;
-      border: 1px solid #334155;
-    }
+    .weather-extra-info { display: flex; align-items: center; gap: 8px; margin-top: 2px; }
+    .rain-prob { font-size: clamp(0.7rem, 1.6vh, 0.85rem); font-weight: 800; color: #38bdf8; background: #0f172a; padding: 1px 6px; border-radius: 4px; border: 1px solid #334155; }
+    .weather-warning { font-size: clamp(0.7rem, 1.6vh, 0.85rem); font-weight: 800; color: #ef4444; background: #451a1a; padding: 1px 6px; border-radius: 4px; border: 1px solid #7f1d1d; }
+    .weather-warning.none { color: #94a3b8; background: #0f172a; border-color: #334155; }
 
-    .weather-warning {
-      font-size: 0.9rem;
-      font-weight: 800;
-      color: #ef4444;
-      background: #451a1a;
-      padding: 2px 8px;
-      border-radius: 6px;
-      display: inline-block;
-      border: 1px solid #7f1d1d;
-    }
-    .weather-warning.none {
-      color: #94a3b8;
-      background: #0f172a;
-      border-color: #334155;
-    }
+    /* 未來 5 小時降雨 */
+    .hourly-rain-box { background: #0f172a; border-radius: 6px; padding: 4px; margin: 3px 0; border: 1px solid #334155; }
+    .hourly-title { font-size: clamp(0.65rem, 1.5vh, 0.8rem); color: #38bdf8; font-weight: 800; text-align: center; }
+    .hourly-grid { display: flex; justify-content: space-around; }
+    .hourly-item { text-align: center; flex: 1; }
+    .hourly-time { font-size: clamp(0.6rem, 1.4vh, 0.75rem); color: #94a3b8; font-weight: 700; }
+    .hourly-val { font-size: clamp(0.7rem, 1.6vh, 0.85rem); color: #38bdf8; font-weight: 900; }
 
-    /* 未來 5 小時每小時降雨機率 */
-    .hourly-rain-box {
-      background: #0f172a;
-      border-radius: 8px;
-      padding: 6px;
-      margin: 4px 0;
-      border: 1px solid #334155;
-    }
-    .hourly-title {
-      font-size: 0.8rem;
-      color: #38bdf8;
-      font-weight: 800;
-      margin-bottom: 4px;
-      text-align: center;
-    }
-    .hourly-grid {
-      display: flex;
-      justify-content: space-around;
-    }
-    .hourly-item {
-      text-align: center;
-      flex: 1;
-    }
-    .hourly-time { font-size: 0.75rem; color: #94a3b8; font-weight: 700; }
-    .hourly-val { font-size: 0.85rem; color: #38bdf8; font-weight: 900; margin-top: 1px; }
-
-    /* 5 天預報網格 */
-    .forecast-grid { display: flex; justify-content: space-around; border-top: 2px solid #334155; padding-top: 4px; margin-top: 2px; }
+    /* 5 天預報 */
+    .forecast-grid { display: flex; justify-content: space-around; border-top: 1px solid #334155; padding-top: 2px; }
     .forecast-item { text-align: center; flex: 1; }
-    .forecast-date { font-size: 0.8rem; color: #94a3b8; font-weight: 700; }
-    .forecast-day { font-size: 0.85rem; color: #cbd5e1; font-weight: 800; }
-    .forecast-icon { font-size: 1.2rem; margin: 1px 0; }
-    .forecast-temp { font-weight: 800; font-size: 0.9rem; color: #f8fafc; white-space: nowrap; }
+    .forecast-date { font-size: clamp(0.65rem, 1.5vh, 0.8rem); color: #94a3b8; font-weight: 700; }
+    .forecast-day { font-size: clamp(0.7rem, 1.6vh, 0.85rem); color: #cbd5e1; font-weight: 800; }
+    .forecast-icon { font-size: clamp(0.9rem, 2vh, 1.2rem); }
+    .forecast-temp { font-weight: 800; font-size: clamp(0.7rem, 1.6vh, 0.85rem); color: #f8fafc; white-space: nowrap; }
+
+    /* 手機直向模式特別調整 (如 iPhone/Android 直立螢幕) */
+    @media (max-width: 600px) and (orientation: portrait) {
+      body { padding: 8px; gap: 8px; }
+      .btn-move { width: 32px; height: 32px; font-size: 1.1rem; }
+      .time-main { font-size: 2.8rem; }
+      .bus-route { font-size: 1.4rem; }
+      .temp-main { font-size: 2.2rem; }
+    }
   </style>
 </head>
 <body>
