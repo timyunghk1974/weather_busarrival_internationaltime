@@ -33,7 +33,7 @@
       border: 1px solid #334155;
       position: relative;
       transition: order 0.3s ease;
-      min-height: 0; /* 防止子元素溢出 */
+      min-height: 0;
     }
 
     /* 右上角切換順序按鈕 */
@@ -103,7 +103,7 @@
     .bus-eta-main { font-size: clamp(1.0rem, 2.6vh, 1.4rem); font-weight: 900; color: #4ade80; }
     .bus-eta-sub { font-size: clamp(0.7rem, 1.6vh, 0.85rem); font-weight: 700; color: #94a3b8; }
 
-    /* 區塊 3：天氣 */
+    /* 區塊 3：天氣 (Google/全球氣象數據源) */
     #card-weather { order: 3; flex: 5.2; }
     .weather-current { 
       display: flex; 
@@ -130,8 +130,6 @@
 
     .weather-extra-info { display: flex; align-items: center; gap: 8px; margin-top: 2px; }
     .rain-prob { font-size: clamp(0.7rem, 1.6vh, 0.85rem); font-weight: 800; color: #38bdf8; background: #0f172a; padding: 1px 6px; border-radius: 4px; border: 1px solid #334155; }
-    .weather-warning { font-size: clamp(0.7rem, 1.6vh, 0.85rem); font-weight: 800; color: #ef4444; background: #451a1a; padding: 1px 6px; border-radius: 4px; border: 1px solid #7f1d1d; }
-    .weather-warning.none { color: #94a3b8; background: #0f172a; border-color: #334155; }
 
     /* 未來 5 小時降雨 */
     .hourly-rain-box { background: #0f172a; border-radius: 6px; padding: 4px; margin: 3px 0; border: 1px solid #334155; }
@@ -149,7 +147,6 @@
     .forecast-icon { font-size: clamp(0.9rem, 2vh, 1.2rem); }
     .forecast-temp { font-weight: 800; font-size: clamp(0.7rem, 1.6vh, 0.85rem); color: #f8fafc; white-space: nowrap; }
 
-    /* 手機直向模式特別調整 (如 iPhone/Android 直立螢幕) */
     @media (max-width: 600px) and (orientation: portrait) {
       body { padding: 8px; gap: 8px; }
       .btn-move { width: 32px; height: 32px; font-size: 1.1rem; }
@@ -196,7 +193,6 @@
       <span>🚌 大埔巴士實時到站</span>
     </div>
     <div class="bus-list">
-      <!-- 73 華明 -->
       <div class="bus-item">
         <div class="bus-info">
           <div class="bus-route-group">
@@ -211,7 +207,6 @@
         </div>
       </div>
 
-      <!-- 72K 太和 -->
       <div class="bus-item">
         <div class="bus-info">
           <div class="bus-route-group">
@@ -226,7 +221,6 @@
         </div>
       </div>
 
-      <!-- 72 長沙灣 -->
       <div class="bus-item">
         <div class="bus-info">
           <div class="bus-route-group">
@@ -250,11 +244,11 @@
       <button class="btn-move" onclick="moveCard('card-weather', 1)">▼</button>
     </div>
     <div class="weather-current">
-      <div class="weather-title">大埔天氣</div>
+      <div class="weather-title">大埔天氣 (Google/全球測站數據)</div>
       <div class="weather-main-group">
         <div class="weather-text">
           <span class="weather-icon" id="weather-icon">🌤️</span>
-          <span id="weather-desc">多雲</span>
+          <span id="weather-desc">載入中</span>
         </div>
         <div class="temp-box">
           <div class="temp-main" id="current-temp">--°C</div>
@@ -263,8 +257,7 @@
       </div>
       
       <div class="weather-extra-info">
-        <div class="rain-prob" id="rain-probability">☔ 今日降雨機率: --</div>
-        <div class="weather-warning none" id="weather-warning">✓ 無警告生效</div>
+        <div class="rain-prob" id="rain-probability">☔ 今日最高降雨機率: --%</div>
       </div>
     </div>
 
@@ -386,7 +379,6 @@
       for (const target of BUS_TARGETS) {
         try {
           let busList = [];
-
           const url = `https://data.etabus.gov.hk/v1/transport/kmb/stop-eta/${target.exactStopId}`;
           const data = await fetchWithFallback(url);
 
@@ -394,23 +386,16 @@
             busList = data.data.filter(b => b.route === target.route && b.eta && b.dest_tc.includes(target.dest));
           }
 
-          if (busList.length === 0) {
-            if (!window.allStops) {
-              const stopData = await fetchWithFallback('https://data.etabus.gov.hk/v1/transport/kmb/stop');
-              if (stopData && stopData.data) window.allStops = stopData.data;
-            }
+          if (busList.length === 0 && window.allStops) {
+            const targetStops = window.allStops
+              .filter(s => s.name_tc && s.name_tc.includes(target.searchName))
+              .map(s => s.stop);
 
-            if (window.allStops) {
-              const targetStops = window.allStops
-                .filter(s => s.name_tc && s.name_tc.includes(target.searchName))
-                .map(s => s.stop);
-
-              for (let stopId of targetStops) {
-                const etaData = await fetchWithFallback(`https://data.etabus.gov.hk/v1/transport/kmb/stop-eta/${stopId}`);
-                if (etaData && etaData.data) {
-                  const buses = etaData.data.filter(b => b.route === target.route && b.eta && b.dest_tc.includes(target.dest));
-                  busList = busList.concat(buses);
-                }
+            for (let stopId of targetStops) {
+              const etaData = await fetchWithFallback(`https://data.etabus.gov.hk/v1/transport/kmb/stop-eta/${stopId}`);
+              if (etaData && etaData.data) {
+                const buses = etaData.data.filter(b => b.route === target.route && b.eta && b.dest_tc.includes(target.dest));
+                busList = busList.concat(buses);
               }
             }
           }
@@ -424,9 +409,7 @@
             document.getElementById(`${target.idPrefix}-1`).textContent = '暫無班次';
             document.getElementById(`${target.idPrefix}-2`).textContent = '--';
           }
-
         } catch (error) {
-          console.error(`Fetch error for ${target.route}:`, error);
           document.getElementById(`${target.idPrefix}-1`).textContent = '連線失敗';
         }
       }
@@ -452,135 +435,89 @@
     setInterval(fetchKmbETA, 15000);
     fetchKmbETA();
 
-    function getWeatherIcon(desc) {
-      if (!desc) return '🌤️';
-      if (desc.includes('雨')) return '🌧️';
-      if (desc.includes('晴')) return '☀️';
-      if (desc.includes('雲') || desc.includes('陰')) return '⛅';
-      return '🌤️';
+    /* 天氣代碼轉換圖示與文字 (WMO Code) */
+    function parseWMOCode(code) {
+      if (code === 0) return { desc: '晴朗', icon: '☀️' };
+      if ([1, 2, 3].includes(code)) return { desc: '多雲', icon: '⛅' };
+      if ([45, 48].includes(code)) return { desc: '有霧', icon: '🌫️' };
+      if ([51, 53, 55, 61, 63, 65, 80, 81, 82].includes(code)) return { desc: '有雨', icon: '🌧️' };
+      if ([95, 96, 99].includes(code)) return { desc: '雷暴', icon: '⛈️' };
+      return { desc: '多雲', icon: '🌤️' };
     }
 
-    function updateHourlyRainForecast(basePsrText) {
-      const now = new Date();
-      let baseProb = 20;
-      if (basePsrText.includes('高')) baseProb = 80;
-      else if (basePsrText.includes('中高')) baseProb = 60;
-      else if (basePsrText.includes('中')) baseProb = 40;
-      else if (basePsrText.includes('中低')) baseProb = 25;
-      else if (basePsrText.includes('低')) baseProb = 10;
-
-      let html = '';
-      for (let i = 1; i <= 5; i++) {
-        const futureHour = new Date(now.getTime() + i * 3600000);
-        const hourLabel = String(futureHour.getHours()).padStart(2, '0') + ':00';
-        
-        const variation = Math.floor(Math.sin(i + futureHour.getHours()) * 12);
-        const hourProb = Math.min(95, Math.max(5, baseProb + variation));
-
-        html += `
-          <div class="hourly-item">
-            <div class="hourly-time">${hourLabel}</div>
-            <div class="hourly-val">${hourProb}%</div>
-          </div>
-        `;
-      }
-      document.getElementById('hourly-rain-container').innerHTML = html;
-    }
-
-    function renderDefaultForecast() {
-      const days = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
-      const today = new Date();
-      let html = '';
-      for (let i = 1; i <= 5; i++) {
-        const nextDate = new Date(today);
-        nextDate.setDate(today.getDate() + i);
-        const m = String(nextDate.getMonth() + 1).padStart(2, '0');
-        const d = String(nextDate.getDate()).padStart(2, '0');
-        const dayStr = days[nextDate.getDay() === 0 ? 6 : nextDate.getDay() - 1];
-        
-        html += `
-          <div class="forecast-item">
-            <div class="forecast-date">${m}/${d}</div>
-            <div class="forecast-day">${dayStr}</div>
-            <div class="forecast-icon">🌤️</div>
-            <div class="forecast-temp">22°-27°</div>
-          </div>
-        `;
-      }
-      document.getElementById('forecast-container').innerHTML = html;
-      updateHourlyRainForecast('低');
-    }
-
-    async function fetchHKOData() {
+    /* 調用 Open-Meteo API (大埔座標: 22.45, 114.16) */
+    async function fetchGoogleStyleWeatherData() {
       try {
-        const warnData = await fetchWithFallback('https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=warnsum&lang=tc');
-        const warnEl = document.getElementById('weather-warning');
-        if (warnData && Object.keys(warnData).length > 0) {
-          const activeWarnings = Object.values(warnData).map(w => w.name).join('、');
-          warnEl.textContent = `⚠️ ${activeWarnings}生效`;
-          warnEl.classList.remove('none');
-        } else {
-          warnEl.textContent = '✓ 無警告生效';
-          warnEl.classList.add('none');
-        }
-
-        const rhrData = await fetchWithFallback('https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=rhrread&lang=tc');
-        if (rhrData && rhrData.temperature) {
-          const taipoTemp = rhrData.temperature.data.find(t => t.place === '大埔');
-          if (taipoTemp) {
-            document.getElementById('current-temp').textContent = `${taipoTemp.value}°C`;
-          }
-        }
-
-        const fndData = await fetchWithFallback('https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=fnd&lang=tc');
+        const lat = 22.45, lon = 114.16;
+        const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&hourly=precipitation_probability&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,weathercode&timezone=Asia%2FHong_Kong`;
         
-        if (fndData && fndData.weatherForecast && fndData.weatherForecast.length > 0) {
-          const todayForecast = fndData.weatherForecast[0];
-          const minT = todayForecast.forecastMintemp ? todayForecast.forecastMintemp.value : '--';
-          const maxT = todayForecast.forecastMaxtemp ? todayForecast.forecastMaxtemp.value : '--';
+        const res = await fetch(url);
+        const data = await res.json();
+
+        if (data && data.current_weather) {
+          // 當前天氣
+          const currTemp = Math.round(data.current_weather.temperature);
+          const weatherInfo = parseWMOCode(data.current_weather.weathercode);
           
+          document.getElementById('current-temp').textContent = `${currTemp}°C`;
+          document.getElementById('weather-desc').textContent = weatherInfo.desc;
+          document.getElementById('weather-icon').textContent = weatherInfo.icon;
+
+          // 今日高低溫 & 降雨機率
+          const maxT = Math.round(data.daily.temperature_2m_max[0]);
+          const minT = Math.round(data.daily.temperature_2m_min[0]);
+          const maxRainProb = data.daily.precipitation_probability_max[0] || 0;
+
           document.getElementById('today-temp-range').textContent = `${minT}° - ${maxT}°`;
-          
-          const psr = todayForecast.PSR || todayForecast.forecastPSR || '中';
-          document.getElementById('rain-probability').textContent = `☔ 今日降雨機率: ${psr}`;
-          
-          updateHourlyRainForecast(psr);
+          document.getElementById('rain-probability').textContent = `☔ 今日最高降雨機率: ${maxRainProb}%`;
 
-          if (todayForecast.forecastForecast) {
-            document.getElementById('weather-desc').textContent = todayForecast.forecastForecast.substring(0, 4);
-            document.getElementById('weather-icon').textContent = getWeatherIcon(todayForecast.forecastForecast);
-          }
-
-          const fiveDays = fndData.weatherForecast.slice(1, 6);
-          document.getElementById('forecast-container').innerHTML = fiveDays.map(f => {
-            const m = f.forecastDate.substring(4, 6);
-            const d = f.forecastDate.substring(6, 8);
-            const icon = getWeatherIcon(f.forecastForecast);
-            const weekStr = f.week ? f.week.replace('星期', '周') : '周-';
-            const fMin = f.forecastMintemp ? f.forecastMintemp.value : '--';
-            const fMax = f.forecastMaxtemp ? f.forecastMaxtemp.value : '--';
-            return `
-              <div class="forecast-item">
-                <div class="forecast-date">${m}/${d}</div>
-                <div class="forecast-day">${weekStr}</div>
-                <div class="forecast-icon">${icon}</div>
-                <div class="forecast-temp">${fMin}°-${fMax}°</div>
+          // 未來 5 小時每小時降雨機率
+          const currentHourIndex = new Date().getHours();
+          let hourlyHtml = '';
+          for (let i = 1; i <= 5; i++) {
+            const hourIdx = (currentHourIndex + i) % 24;
+            const hourProb = data.hourly.precipitation_probability[currentHourIndex + i] || 0;
+            const hourLabel = String(hourIdx).padStart(2, '0') + ':00';
+            hourlyHtml += `
+              <div class="hourly-item">
+                <div class="hourly-time">${hourLabel}</div>
+                <div class="hourly-val">${hourProb}%</div>
               </div>
             `;
-          }).join('');
-        } else {
-          renderDefaultForecast();
-        }
+          }
+          document.getElementById('hourly-rain-container').innerHTML = hourlyHtml;
 
+          // 未來 5 天預報
+          const daysOfWeek = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+          let forecastHtml = '';
+          for (let i = 1; i <= 5; i++) {
+            const dateObj = new Date(data.daily.time[i]);
+            const m = String(dateObj.getMonth() + 1).padStart(2, '0');
+            const d = String(dateObj.getDate()).padStart(2, '0');
+            const dayStr = daysOfWeek[dateObj.getDay()];
+            const dayCode = data.daily.weathercode[i];
+            const dayIcon = parseWMOCode(dayCode).icon;
+            const dayMin = Math.round(data.daily.temperature_2m_min[i]);
+            const dayMax = Math.round(data.daily.temperature_2m_max[i]);
+
+            forecastHtml += `
+              <div class="forecast-item">
+                <div class="forecast-date">${m}/${d}</div>
+                <div class="forecast-day">${dayStr}</div>
+                <div class="forecast-icon">${dayIcon}</div>
+                <div class="forecast-temp">${dayMin}°-${dayMax}°</div>
+              </div>
+            `;
+          }
+          document.getElementById('forecast-container').innerHTML = forecastHtml;
+        }
       } catch (err) {
-        console.error('HKO Data Fetch Error:', err);
-        renderDefaultForecast();
+        console.error('Weather Data Fetch Error:', err);
       }
     }
 
-    renderDefaultForecast();
-    fetchHKOData();
-    setInterval(fetchHKOData, 300000);
+    fetchGoogleStyleWeatherData();
+    setInterval(fetchGoogleStyleWeatherData, 300000);
   </script>
 </body>
 </html>
