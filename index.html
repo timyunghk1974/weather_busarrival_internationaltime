@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>大埔巴士實時車機儀表板 - 均等 Full Screen 版</title>
+  <title>大埔巴士實時車機儀表板 - 相容修復版</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     
@@ -60,7 +60,6 @@
       align-items: center;
       justify-content: center;
     }
-    .btn-move:active { background: #0284c7; color: #fff; }
 
     /* 區塊 1：香港時間 */
     #card-time { order: 1; }
@@ -90,7 +89,7 @@
     .clock-date { font-size: clamp(0.95rem, 2.2vh, 1.3rem); color: #cbd5e1; font-weight: 700; margin-top: 2px; }
     .clock-val { font-size: clamp(1.4rem, 3.5vh, 2rem); font-weight: 900; color: #38bdf8; font-family: monospace; margin-top: 2px; }
 
-    /* 區塊 2：巴士實時到站（字體全面加大） */
+    /* 區塊 2：巴士實時到站 */
     #card-bus { order: 2; }
     .bus-header { font-size: clamp(1.2rem, 3vh, 1.7rem); font-weight: 900; color: #f59e0b; display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
     .bus-list { display: flex; flex-direction: column; gap: 0.8vh; justify-content: space-between; flex: 1; }
@@ -151,7 +150,6 @@
     .forecast-icon { font-size: clamp(1.2rem, 2.8vh, 1.7rem); }
     .forecast-temp { font-weight: 800; font-size: clamp(0.9rem, 2.1vh, 1.15rem); color: #f8fafc; white-space: nowrap; }
 
-    /* 直向螢幕自動切換為上下排列 */
     @media (max-width: 768px) and (orientation: portrait) {
       body { flex-direction: column; padding: 8px; gap: 8px; }
       .btn-move { width: 32px; height: 32px; font-size: 1.1rem; }
@@ -199,13 +197,9 @@
       <span>🚌 大埔巴士實時到站</span>
     </div>
     <div class="bus-list">
-      <!-- 73 華明 -->
       <div class="bus-item">
         <div class="bus-info">
-          <div class="bus-route-group">
-            <span class="bus-route">73</span>
-            <span class="bus-stop">大元邨</span>
-          </div>
+          <div class="bus-route-group"><span class="bus-route">73</span><span class="bus-stop">大元邨</span></div>
           <span class="bus-dest">往 華明</span>
         </div>
         <div class="bus-eta-group">
@@ -214,13 +208,9 @@
         </div>
       </div>
 
-      <!-- 72K 太和 -->
       <div class="bus-item">
         <div class="bus-info">
-          <div class="bus-route-group">
-            <span class="bus-route">72K</span>
-            <span class="bus-stop">大元邨</span>
-          </div>
+          <div class="bus-route-group"><span class="bus-route">72K</span><span class="bus-stop">大元邨</span></div>
           <span class="bus-dest">往 太和</span>
         </div>
         <div class="bus-eta-group">
@@ -229,13 +219,9 @@
         </div>
       </div>
 
-      <!-- 72 長沙灣 -->
       <div class="bus-item">
         <div class="bus-info">
-          <div class="bus-route-group">
-            <span class="bus-route">72</span>
-            <span class="bus-stop">文娛中心</span>
-          </div>
+          <div class="bus-route-group"><span class="bus-route">72</span><span class="bus-stop">文娛中心</span></div>
           <span class="bus-dest">往 長沙灣</span>
         </div>
         <div class="bus-eta-group">
@@ -244,13 +230,9 @@
         </div>
       </div>
 
-      <!-- 272E 太和 -->
       <div class="bus-item">
         <div class="bus-info">
-          <div class="bus-route-group">
-            <span class="bus-route">272E</span>
-            <span class="bus-stop">怡閣苑</span>
-          </div>
+          <div class="bus-route-group"><span class="bus-route">272E</span><span class="bus-stop">怡閣苑</span></div>
           <span class="bus-dest">往 太和</span>
         </div>
         <div class="bus-eta-group">
@@ -286,7 +268,6 @@
       </div>
     </div>
 
-    <!-- 未來 5 小時降雨 -->
     <div class="hourly-rain-box">
       <div class="hourly-title">🌧️ 未來 5 小時逐小時降雨預報</div>
       <div class="hourly-grid" id="hourly-rain-container"></div>
@@ -296,174 +277,178 @@
   </div>
 
   <script>
-    const cards = ['card-time', 'card-bus', 'card-weather'];
-
+    // 排版儲存修復 (防止 localStorage 不支援時報錯)
+    var cards = ['card-time', 'card-bus', 'card-weather'];
     function loadOrder() {
-      const savedOrder = JSON.parse(localStorage.getItem('dash_card_order'));
-      if (savedOrder) {
-        savedOrder.forEach((id, index) => {
-          const el = document.getElementById(id);
-          if (el) el.style.order = index + 1;
-        });
-      }
+      try {
+        var savedOrder = JSON.parse(localStorage.getItem('dash_card_order'));
+        if (savedOrder && savedOrder.length) {
+          for (var i = 0; i < savedOrder.length; i++) {
+            var el = document.getElementById(savedOrder[i]);
+            if (el) el.style.order = i + 1;
+          }
+        }
+      } catch (e) {}
     }
 
     function moveCard(cardId, direction) {
-      const currentOrderList = cards.map(id => ({
-        id,
-        order: parseInt(document.getElementById(id).style.order || (cards.indexOf(id) + 1))
-      })).sort((a, b) => a.order - b.order);
+      try {
+        var currentOrderList = [];
+        for (var i = 0; i < cards.length; i++) {
+          var id = cards[i];
+          var el = document.getElementById(id);
+          var orderVal = el.style.order ? parseInt(el.style.order) : (i + 1);
+          currentOrderList.push({ id: id, order: orderVal });
+        }
+        currentOrderList.sort(function(a, b) { return a.order - b.order; });
 
-      const index = currentOrderList.findIndex(item => item.id === cardId);
-      const targetIndex = index + direction;
+        var index = -1;
+        for (var j = 0; j < currentOrderList.length; j++) {
+          if (currentOrderList[j].id === cardId) { index = j; break; }
+        }
+        var targetIndex = index + direction;
+        if (targetIndex < 0 || targetIndex >= currentOrderList.length) return;
 
-      if (targetIndex < 0 || targetIndex >= currentOrderList.length) return;
+        var tempOrder = currentOrderList[index].order;
+        currentOrderList[index].order = currentOrderList[targetIndex].order;
+        currentOrderList[targetIndex].order = tempOrder;
 
-      const tempOrder = currentOrderList[index].order;
-      currentOrderList[index].order = currentOrderList[targetIndex].order;
-      currentOrderList[targetIndex].order = tempOrder;
-
-      const newSavedOrder = [];
-      currentOrderList.sort((a, b) => a.order - b.order).forEach((item, idx) => {
-        const el = document.getElementById(item.id);
-        el.style.order = idx + 1;
-        newSavedOrder.push(item.id);
-      });
-
-      localStorage.setItem('dash_card_order', JSON.stringify(newSavedOrder));
+        currentOrderList.sort(function(a, b) { return a.order - b.order; });
+        var newSavedOrder = [];
+        for (var k = 0; k < currentOrderList.length; k++) {
+          var item = currentOrderList[k];
+          document.getElementById(item.id).style.order = k + 1;
+          newSavedOrder.push(item.id);
+        }
+        localStorage.setItem('dash_card_order', JSON.stringify(newSavedOrder));
+      } catch (e) {}
     }
-
     loadOrder();
 
-    function formatDate(date) {
-      const day = String(date.getDate()).padStart(2, '0');
-      const month = String(date.getMonth() + 1).padStart(2, '0');
-      const year = date.getFullYear();
-      return `${day}/${month}/${year}`;
-    }
-
-    function formatWorldDate(date, timeZone) {
-      const options = { timeZone, day: '2-digit', month: '2-digit', year: 'numeric', weekday: 'short' };
-      const parts = new Intl.DateTimeFormat('zh-HK', options).formatToParts(date);
-      let day = '', month = '', year = '', weekday = '';
-      for (let p of parts) {
-        if (p.type === 'day') day = p.value;
-        if (p.type === 'month') month = p.value;
-        if (p.type === 'year') year = p.value;
-        if (p.type === 'weekday') weekday = p.value;
-      }
-      return `${day}/${month}/${year} (${weekday})`;
-    }
-
-    function format12HourTime(date, timeZone = null) {
-      const options = {
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-        hour12: true
-      };
-      if (timeZone) options.timeZone = timeZone;
-      return new Intl.DateTimeFormat('en-US', options).format(date);
+    // 基礎時間格式化（相容舊車機）
+    function padZero(num) {
+      return num < 10 ? '0' + num : '' + num;
     }
 
     function updateClocks() {
-      const now = new Date();
-      
-      document.getElementById('local-time').textContent = format12HourTime(now);
-      const weekDayStr = now.toLocaleDateString('zh-HK', { weekday: 'short' });
-      document.getElementById('local-date').textContent = `${formatDate(now)} (${weekDayStr})`;
+      try {
+        var now = new Date();
+        var days = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
 
-      document.getElementById('date-london').textContent = formatWorldDate(now, 'Europe/London');
-      document.getElementById('time-london').textContent = format12HourTime(now, 'Europe/London');
+        // 本地香港時間
+        var hours = now.getHours();
+        var minutes = now.getMinutes();
+        var seconds = now.getSeconds();
+        var ampm = hours >= 12 ? 'PM' : 'AM';
+        hours = hours % 12;
+        hours = hours ? hours : 12;
+        var timeStr = padZero(hours) + ':' + padZero(minutes) + ':' + padZero(seconds) + ' ' + ampm;
+        
+        var dateStr = padZero(now.getDate()) + '/' + padZero(now.getMonth() + 1) + '/' + now.getFullYear();
+        var dayStr = days[now.getDay()];
 
-      document.getElementById('date-paris').textContent = formatWorldDate(now, 'Europe/Paris');
-      document.getElementById('time-paris').textContent = format12HourTime(now, 'Europe/Paris');
+        document.getElementById('local-time').textContent = timeStr;
+        document.getElementById('local-date').textContent = dateStr + ' (' + dayStr + ')';
+
+        // 倫敦時間 (UTC+0 / UTC+1 簡化計算)
+        var utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+        var londonOffset = 1; // 假設夏令時間 UTC+1
+        var londonTime = new Date(utc + (3600000 * londonOffset));
+        var lHours = londonTime.getHours();
+        var lAmpm = lHours >= 12 ? 'PM' : 'AM';
+        lHours = lHours % 12 || 12;
+        
+        document.getElementById('date-london').textContent = padZero(londonTime.getDate()) + '/' + padZero(londonTime.getMonth() + 1) + ' ' + days[londonTime.getDay()];
+        document.getElementById('time-london').textContent = padZero(lHours) + ':' + padZero(londonTime.getMinutes()) + ':' + padZero(londonTime.getSeconds()) + ' ' + lAmpm;
+
+        // 法國時間 (UTC+2 夏令)
+        var parisOffset = 2;
+        var parisTime = new Date(utc + (3600000 * parisOffset));
+        var pHours = parisTime.getHours();
+        var pAmpm = pHours >= 12 ? 'PM' : 'AM';
+        pHours = pHours % 12 || 12;
+
+        document.getElementById('date-paris').textContent = padZero(parisTime.getDate()) + '/' + padZero(parisTime.getMonth() + 1) + ' ' + days[parisTime.getDay()];
+        document.getElementById('time-paris').textContent = padZero(pHours) + ':' + padZero(parisTime.getMinutes()) + ':' + padZero(parisTime.getSeconds()) + ' ' + pAmpm;
+
+      } catch (err) {
+        console.error('Clock error:', err);
+      }
     }
     setInterval(updateClocks, 1000);
     updateClocks();
 
-    async function fetchWithFallback(url) {
-      try {
-        const res = await fetch(url);
-        if (res.ok) return await res.json();
-      } catch (e) {
-        console.warn('Direct fetch failed, trying CORS proxy...');
-      }
-      const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(url)}`;
-      const proxyRes = await fetch(proxyUrl);
-      return await proxyRes.json();
+    // 通用 HTTP 請求 (兼容 XMLHttpRequest)
+    function httpGet(url, callback) {
+      var xhr = new XMLHttpRequest();
+      xhr.open('GET', url, true);
+      xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4) {
+          if (xhr.status === 200) {
+            try {
+              callback(null, JSON.parse(xhr.responseText));
+            } catch (e) {
+              callback(e, null);
+            }
+          } else {
+            callback('Status: ' + xhr.status, null);
+          }
+        }
+      };
+      xhr.send();
     }
 
-    const BUS_TARGETS = [
-      { idPrefix: 'eta-73',   route: '73',   exactStopId: 'B5A51DAF80BFC3FC', searchName: '大元邨', dest: '華明' },
-      { idPrefix: 'eta-72k',  route: '72K',  exactStopId: 'B5A51DAF80BFC3FC', searchName: '大元邨', dest: '太和' },
-      { idPrefix: 'eta-72',   route: '72',   exactStopId: 'C7EA6E2A3423DE05', searchName: '大埔文娛中心', dest: '長沙灣' },
-      { idPrefix: 'eta-272e', route: '272E', exactStopId: '2F7D742C5D6CDE92', searchName: '怡閣苑', dest: '太和' }
+    var BUS_TARGETS = [
+      { idPrefix: 'eta-73', route: '73', exactStopId: 'B5A51DAF80BFC3FC', dest: '華明' },
+      { idPrefix: 'eta-72k', route: '72K', exactStopId: 'B5A51DAF80BFC3FC', dest: '太和' },
+      { idPrefix: 'eta-72', route: '72', exactStopId: 'C7EA6E2A3423DE05', dest: '長沙灣' },
+      { idPrefix: 'eta-272e', route: '272E', exactStopId: '2F7D742C5D6CDE92', dest: '太和' }
     ];
 
-    async function fetchKmbETA() {
-      for (const target of BUS_TARGETS) {
-        try {
-          let busList = [];
-
-          const url = `https://data.etabus.gov.hk/v1/transport/kmb/stop-eta/${target.exactStopId}`;
-          const data = await fetchWithFallback(url);
-
-          if (data && data.data) {
-            busList = data.data.filter(b => b.route === target.route && b.eta && b.dest_tc.includes(target.dest));
-          }
-
-          if (busList.length === 0) {
-            if (!window.allStops) {
-              const stopData = await fetchWithFallback('https://data.etabus.gov.hk/v1/transport/kmb/stop');
-              if (stopData && stopData.data) window.allStops = stopData.data;
+    function fetchKmbETA() {
+      for (var i = 0; i < BUS_TARGETS.length; i++) {
+        (function(target) {
+          var url = 'https://data.etabus.gov.hk/v1/transport/kmb/stop-eta/' + target.exactStopId;
+          httpGet(url, function(err, data) {
+            if (err || !data || !data.data) {
+              document.getElementById(target.idPrefix + '-1').textContent = '無連線';
+              return;
             }
-
-            if (window.allStops) {
-              const targetStops = window.allStops
-                .filter(s => s.name_tc && s.name_tc.includes(target.searchName))
-                .map(s => s.stop);
-
-              for (let stopId of targetStops) {
-                const etaData = await fetchWithFallback(`https://data.etabus.gov.hk/v1/transport/kmb/stop-eta/${stopId}`);
-                if (etaData && etaData.data) {
-                  const buses = etaData.data.filter(b => b.route === target.route && b.eta && b.dest_tc.includes(target.dest));
-                  busList = busList.concat(buses);
-                }
+            var busList = [];
+            for (var j = 0; j < data.data.length; j++) {
+              var b = data.data[j];
+              if (b.route === target.route && b.eta && b.dest_tc.indexOf(target.dest) !== -1) {
+                busList.push(b);
               }
             }
-          }
+            busList.sort(function(a, b) {
+              return new Date(a.eta) - new Date(b.eta);
+            });
 
-          busList.sort((a, b) => new Date(a.eta) - new Date(b.eta));
-
-          if (busList.length > 0) {
-            updateETADisplay(`${target.idPrefix}-1`, busList[0].eta);
-            updateETADisplay(`${target.idPrefix}-2`, busList[1] ? busList[1].eta : null, true);
-          } else {
-            document.getElementById(`${target.idPrefix}-1`).textContent = '暫無班次';
-            document.getElementById(`${target.idPrefix}-2`).textContent = '--';
-          }
-
-        } catch (error) {
-          console.error(`Fetch error for ${target.route}:`, error);
-          document.getElementById(`${target.idPrefix}-1`).textContent = '連線失敗';
-        }
+            if (busList.length > 0) {
+              updateETADisplay(target.idPrefix + '-1', busList[0].eta, false);
+              updateETADisplay(target.idPrefix + '-2', busList[1] ? busList[1].eta : null, true);
+            } else {
+              document.getElementById(target.idPrefix + '-1').textContent = '暫無班次';
+              document.getElementById(target.idPrefix + '-2').textContent = '--';
+            }
+          });
+        })(BUS_TARGETS[i]);
       }
     }
 
-    function updateETADisplay(elementId, etaISO, isSub = false) {
-      const el = document.getElementById(elementId);
+    function updateETADisplay(elementId, etaISO, isSub) {
+      var el = document.getElementById(elementId);
       if (!etaISO) {
         el.textContent = '--';
         return;
       }
-      const diffMins = Math.round((new Date(etaISO) - new Date()) / 60000);
-
+      var diffMins = Math.round((new Date(etaISO) - new Date()) / 60000);
       if (diffMins <= 0) {
         el.textContent = '即將到站';
         if (!isSub) el.style.color = '#facc15';
       } else {
-        el.textContent = isSub ? `次班 ${diffMins}分` : `${diffMins} 分鐘`;
+        el.textContent = isSub ? ('次班 ' + diffMins + '分') : (diffMins + ' 分鐘');
         if (!isSub) el.style.color = '#4ade80';
       }
     }
@@ -473,138 +458,121 @@
 
     function getWeatherIcon(desc) {
       if (!desc) return '🌤️';
-      if (desc.includes('雨')) return '🌧️';
-      if (desc.includes('晴')) return '☀️';
-      if (desc.includes('雲') || desc.includes('陰')) return '⛅';
+      if (desc.indexOf('雨') !== -1) return '🌧️';
+      if (desc.indexOf('晴') !== -1) return '☀️';
+      if (desc.indexOf('雲') !== -1 || desc.indexOf('陰') !== -1) return '⛅';
       return '🌤️';
     }
 
-    async function fetchHourlyRainForecast() {
-      try {
-        const url = 'https://api.open-meteo.com/v1/forecast?latitude=22.45&longitude=114.16&hourly=precipitation_probability&timezone=Asia%2FHong_Kong';
-        const res = await fetch(url);
-        const data = await res.json();
-
-        if (data && data.hourly && data.hourly.time) {
-          const now = new Date();
-          let html = '';
-
-          for (let i = 1; i <= 5; i++) {
-            const nextHour = new Date(now.getTime() + i * 3600000);
+    function fetchHourlyRainForecast() {
+      var url = 'https://api.open-meteo.com/v1/forecast?latitude=22.45&longitude=114.16&hourly=precipitation_probability&timezone=Asia%2FHong_Kong';
+      httpGet(url, function(err, data) {
+        if (!err && data && data.hourly && data.hourly.time) {
+          var now = new Date();
+          var html = '';
+          for (var i = 1; i <= 5; i++) {
+            var nextHour = new Date(now.getTime() + i * 3600000);
+            var hourStr = padZero(nextHour.getHours());
             
-            const year = nextHour.getFullYear();
-            const month = String(nextHour.getMonth() + 1).padStart(2, '0');
-            const day = String(nextHour.getDate()).padStart(2, '0');
-            const hour = String(nextHour.getHours()).padStart(2, '0');
+            var targetTimeStr = nextHour.getFullYear() + '-' + padZero(nextHour.getMonth() + 1) + '-' + padZero(nextHour.getDate()) + 'T' + hourStr + ':00';
+            var idx = data.hourly.time.indexOf(targetTimeStr);
+            var prob = (idx !== -1 && data.hourly.precipitation_probability[idx] !== undefined) ? data.hourly.precipitation_probability[idx] : 0;
 
-            const targetTimeStr = `${year}-${month}-${day}T${hour}:00`;
-            
-            const idx = data.hourly.time.indexOf(targetTimeStr);
-            const prob = idx !== -1 ? (data.hourly.precipitation_probability[idx] ?? 0) : 0;
-
-            html += `
-              <div class="hourly-item">
-                <div class="hourly-time">${hour}:00</div>
-                <div class="hourly-val">${prob}%</div>
-              </div>
-            `;
+            html += '<div class="hourly-item">' +
+                      '<div class="hourly-time">' + hourStr + ':00</div>' +
+                      '<div class="hourly-val">' + prob + '%</div>' +
+                    '</div>';
           }
           document.getElementById('hourly-rain-container').innerHTML = html;
         }
-      } catch (err) {
-        console.error('Hourly Rain Fetch Error:', err);
-      }
+      });
     }
 
     function renderDefaultForecast() {
-      const days = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
-      const today = new Date();
-      let html = '';
-      for (let i = 1; i <= 5; i++) {
-        const nextDate = new Date(today);
+      var days = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
+      var today = new Date();
+      var html = '';
+      for (var i = 1; i <= 5; i++) {
+        var nextDate = new Date(today);
         nextDate.setDate(today.getDate() + i);
-        const m = String(nextDate.getMonth() + 1).padStart(2, '0');
-        const d = String(nextDate.getDate()).padStart(2, '0');
-        const dayStr = days[nextDate.getDay() === 0 ? 6 : nextDate.getDay() - 1];
+        var m = padZero(nextDate.getMonth() + 1);
+        var d = padZero(nextDate.getDate());
+        var dayIdx = nextDate.getDay() === 0 ? 6 : nextDate.getDay() - 1;
         
-        html += `
-          <div class="forecast-item">
-            <div class="forecast-date">${m}/${d}</div>
-            <div class="forecast-day">${dayStr}</div>
-            <div class="forecast-icon">🌤️</div>
-            <div class="forecast-temp">22°-27°</div>
-          </div>
-        `;
+        html += '<div class="forecast-item">' +
+                  '<div class="forecast-date">' + m + '/' + d + '</div>' +
+                  '<div class="forecast-day">' + days[dayIdx] + '</div>' +
+                  '<div class="forecast-icon">🌤️</div>' +
+                  '<div class="forecast-temp">22°-27°</div>' +
+                '</div>';
       }
       document.getElementById('forecast-container').innerHTML = html;
       fetchHourlyRainForecast();
     }
 
-    async function fetchHKOData() {
-      try {
-        const warnData = await fetchWithFallback('https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=warnsum&lang=tc');
-        const warnEl = document.getElementById('weather-warning');
-        if (warnData && Object.keys(warnData).length > 0) {
-          const activeWarnings = Object.values(warnData).map(w => w.name).join('、');
-          warnEl.textContent = `⚠️ ${activeWarnings}生效`;
-          warnEl.classList.remove('none');
+    function fetchHKOData() {
+      // 天氣警告
+      httpGet('https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=warnsum&lang=tc', function(err, warnData) {
+        var warnEl = document.getElementById('weather-warning');
+        if (!err && warnData && Object.keys(warnData).length > 0) {
+          var warnings = [];
+          for (var k in warnData) { warnings.push(warnData[k].name); }
+          warnEl.textContent = '⚠️ ' + warnings.join('、') + '生效';
+          warnEl.className = 'weather-warning';
         } else {
           warnEl.textContent = '✓ 無警告生效';
-          warnEl.classList.add('none');
+          warnEl.className = 'weather-warning none';
         }
+      });
 
-        const rhrData = await fetchWithFallback('https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=rhrread&lang=tc');
-        if (rhrData && rhrData.temperature) {
-          const taipoTemp = rhrData.temperature.data.find(t => t.place === '大埔');
-          if (taipoTemp) {
-            document.getElementById('current-temp').textContent = `${taipoTemp.value}°C`;
+      // 現時氣溫
+      httpGet('https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=rhrread&lang=tc', function(err, rhrData) {
+        if (!err && rhrData && rhrData.temperature && rhrData.temperature.data) {
+          for (var i = 0; i < rhrData.temperature.data.length; i++) {
+            if (rhrData.temperature.data[i].place === '大埔') {
+              document.getElementById('current-temp').textContent = rhrData.temperature.data[i].value + '°C';
+              break;
+            }
           }
         }
+      });
 
-        const fndData = await fetchWithFallback('https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=fnd&lang=tc');
-        
-        if (fndData && fndData.weatherForecast && fndData.weatherForecast.length > 0) {
-          const todayForecast = fndData.weatherForecast[0];
-          const minT = todayForecast.forecastMintemp ? todayForecast.forecastMintemp.value : '--';
-          const maxT = todayForecast.forecastMaxtemp ? todayForecast.forecastMaxtemp.value : '--';
+      // 9天預報
+      httpGet('https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=fnd&lang=tc', function(err, fndData) {
+        if (!err && fndData && fndData.weatherForecast && fndData.weatherForecast.length > 0) {
+          var todayForecast = fndData.weatherForecast[0];
+          var minT = todayForecast.forecastMintemp ? todayForecast.forecastMintemp.value : '--';
+          var maxT = todayForecast.forecastMaxtemp ? todayForecast.forecastMaxtemp.value : '--';
+          document.getElementById('today-temp-range').textContent = minT + '° - ' + maxT + '°';
           
-          document.getElementById('today-temp-range').textContent = `${minT}° - ${maxT}°`;
-          
-          const psr = todayForecast.PSR || todayForecast.forecastPSR || '中';
-          document.getElementById('rain-probability').textContent = `☔ 今日降雨機率: ${psr}`;
-          
-          fetchHourlyRainForecast();
+          var psr = todayForecast.PSR || todayForecast.forecastPSR || '中';
+          document.getElementById('rain-probability').textContent = '☔ 今日降雨機率: ' + psr;
 
           if (todayForecast.forecastForecast) {
             document.getElementById('weather-desc').textContent = todayForecast.forecastForecast.substring(0, 4);
             document.getElementById('weather-icon').textContent = getWeatherIcon(todayForecast.forecastForecast);
           }
 
-          const fiveDays = fndData.weatherForecast.slice(1, 6);
-          document.getElementById('forecast-container').innerHTML = fiveDays.map(f => {
-            const m = f.forecastDate.substring(4, 6);
-            const d = f.forecastDate.substring(6, 8);
-            const icon = getWeatherIcon(f.forecastForecast);
-            const weekStr = f.week ? f.week.replace('星期', '周') : '周-';
-            const fMin = f.forecastMintemp ? f.forecastMintemp.value : '--';
-            const fMax = f.forecastMaxtemp ? f.forecastMaxtemp.value : '--';
-            return `
-              <div class="forecast-item">
-                <div class="forecast-date">${m}/${d}</div>
-                <div class="forecast-day">${weekStr}</div>
-                <div class="forecast-icon">${icon}</div>
-                <div class="forecast-temp">${fMin}°-${fMax}°</div>
-              </div>
-            `;
-          }).join('');
+          var fiveDays = fndData.weatherForecast.slice(1, 6);
+          var html = '';
+          for (var j = 0; j < fiveDays.length; j++) {
+            var f = fiveDays[j];
+            var m = f.forecastDate.substring(4, 6);
+            var d = f.forecastDate.substring(6, 8);
+            var weekStr = f.week ? f.week.replace('星期', '周') : '周-';
+            html += '<div class="forecast-item">' +
+                      '<div class="forecast-date">' + m + '/' + d + '</div>' +
+                      '<div class="forecast-day">' + weekStr + '</div>' +
+                      '<div class="forecast-icon">' + getWeatherIcon(f.forecastForecast) + '</div>' +
+                      '<div class="forecast-temp">' + f.forecastMintemp.value + '°- ' + f.forecastMaxtemp.value + '°</div>' +
+                    '</div>';
+          }
+          document.getElementById('forecast-container').innerHTML = html;
         } else {
           renderDefaultForecast();
         }
-
-      } catch (err) {
-        console.error('HKO Data Fetch Error:', err);
-        renderDefaultForecast();
-      }
+      });
+      fetchHourlyRainForecast();
     }
 
     renderDefaultForecast();
