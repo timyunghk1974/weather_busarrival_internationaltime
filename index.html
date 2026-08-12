@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>大埔巴士實時車機儀表板 - 相容修復版</title>
+  <title>大埔巴士實時車機儀表板 - 字體特大版</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     
@@ -27,7 +27,7 @@
       flex: 1;
       background: #1e293b;
       border-radius: 12px;
-      padding: 1vh 1vw;
+      padding: 1.2vh 1.2vw;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
@@ -61,7 +61,7 @@
       justify-content: center;
     }
 
-    /* 區塊 1：香港時間 */
+    /* 區塊 1：香港時間 (大幅放大字體) */
     #card-time { order: 1; }
     .time-header { 
       display: flex; 
@@ -72,15 +72,25 @@
       flex: 1;
     }
     .time-main { 
-      font-size: clamp(2.5rem, 6.5vw, 5rem); 
+      font-size: clamp(3.2rem, 8.5vw, 6.5rem); /* 大幅放大時間 */
       font-weight: 900; 
       color: #38bdf8; 
       font-family: monospace; 
       line-height: 1; 
       letter-spacing: -1px; 
     }
-    .tz-label { font-size: clamp(1.1rem, 2.8vh, 1.6rem); color: #f59e0b; font-weight: 900; margin-top: 8px; }
-    .date-main { font-size: clamp(1.3rem, 3.2vh, 2rem); color: #cbd5e1; font-weight: 800; margin-top: 6px; }
+    .tz-label { 
+      font-size: clamp(1.4rem, 3.5vh, 2.2rem); /* 放大標題 */
+      color: #f59e0b; 
+      font-weight: 900; 
+      margin-top: 10px; 
+    }
+    .date-main { 
+      font-size: clamp(1.6rem, 4vh, 2.6rem); /* 放大日期 */
+      color: #f8fafc; 
+      font-weight: 900; 
+      margin-top: 8px; 
+    }
     
     /* 世界時鐘 */
     .world-clocks { display: flex; justify-content: space-around; border-top: 2px solid #334155; padding-top: 8px; }
@@ -91,7 +101,7 @@
 
     /* 區塊 2：巴士實時到站 */
     #card-bus { order: 2; }
-    .bus-header { font-size: clamp(1.2rem, 3vh, 1.7rem); font-weight: 900; color: #f59e0b; display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+    .bus-header { font-size: clamp(1.3rem, 3.2vh, 1.8rem); font-weight: 900; color: #f59e0b; display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
     .bus-list { display: flex; flex-direction: column; gap: 0.8vh; justify-content: space-between; flex: 1; }
     .bus-item { display: flex; justify-content: space-between; align-items: center; background: #0f172a; padding: 1vh 14px; border-radius: 8px; flex: 1; }
     .bus-info { display: flex; flex-direction: column; }
@@ -103,7 +113,7 @@
     .bus-eta-main { font-size: clamp(1.6rem, 4vh, 2.4rem); font-weight: 900; color: #4ade80; }
     .bus-eta-sub { font-size: clamp(1.05rem, 2.3vh, 1.35rem); font-weight: 800; color: #94a3b8; margin-top: 2px; }
 
-    /* 區塊 3：天氣 */
+    /* 區塊 3：天氣 (大幅放大字體) */
     #card-weather { order: 3; }
     .weather-current { 
       display: flex; 
@@ -113,50 +123,69 @@
       text-align: center;
       flex: 1.5;
     }
-    .weather-title { font-size: clamp(1.2rem, 3vh, 1.7rem); color: #38bdf8; font-weight: 900; }
+    .weather-title { 
+      font-size: clamp(1.5rem, 3.8vh, 2.2rem); /* 放大標題 */
+      color: #38bdf8; 
+      font-weight: 900; 
+    }
     
     .weather-main-group {
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 16px;
-      margin: 8px 0;
+      gap: 20px;
+      margin: 10px 0;
     }
-    .weather-text { font-size: clamp(1.4rem, 3.5vh, 2rem); color: #f8fafc; font-weight: 900; display: flex; align-items: center; gap: 8px; }
-    .weather-icon { font-size: clamp(2.5rem, 6.5vh, 4rem); line-height: 1; }
+    .weather-text { 
+      font-size: clamp(1.8rem, 4.5vh, 2.6rem); /* 放大天氣描述 */
+      color: #f8fafc; 
+      font-weight: 900; 
+      display: flex; 
+      align-items: center; 
+      gap: 8px; 
+    }
+    .weather-icon { font-size: clamp(3rem, 7.5vh, 4.5rem); line-height: 1; }
     
     .temp-box { display: flex; flex-direction: column; align-items: center; }
-    .temp-main { font-size: clamp(3rem, 7.5vh, 5rem); font-weight: 900; color: #38bdf8; line-height: 0.9; }
-    .temp-range { font-size: clamp(1.1rem, 2.6vh, 1.5rem); font-weight: 800; color: #cbd5e1; margin-top: 4px; }
+    .temp-main { 
+      font-size: clamp(3.8rem, 9vh, 6rem); /* 大幅放大當前溫度 */
+      font-weight: 900; 
+      color: #38bdf8; 
+      line-height: 0.9; 
+    }
+    .temp-range { 
+      font-size: clamp(1.3rem, 3vh, 1.8rem); /* 放大氣溫範圍 */
+      font-weight: 800; 
+      color: #cbd5e1; 
+      margin-top: 6px; 
+    }
 
     .weather-extra-info { display: flex; align-items: center; gap: 12px; margin-top: 8px; }
-    .rain-prob { font-size: clamp(0.95rem, 2.3vh, 1.25rem); font-weight: 800; color: #38bdf8; background: #0f172a; padding: 4px 10px; border-radius: 6px; border: 1px solid #334155; }
-    .weather-warning { font-size: clamp(0.95rem, 2.3vh, 1.25rem); font-weight: 800; color: #ef4444; background: #451a1a; padding: 4px 10px; border-radius: 6px; border: 1px solid #7f1d1d; }
+    .rain-prob { font-size: clamp(1rem, 2.5vh, 1.35rem); font-weight: 800; color: #38bdf8; background: #0f172a; padding: 6px 12px; border-radius: 6px; border: 1px solid #334155; }
+    .weather-warning { font-size: clamp(1rem, 2.5vh, 1.35rem); font-weight: 800; color: #ef4444; background: #451a1a; padding: 6px 12px; border-radius: 6px; border: 1px solid #7f1d1d; }
     .weather-warning.none { color: #94a3b8; background: #0f172a; border-color: #334155; }
 
     /* 未來 5 小時降雨 */
     .hourly-rain-box { background: #0f172a; border-radius: 8px; padding: 8px; margin: 8px 0; border: 1px solid #334155; }
-    .hourly-title { font-size: clamp(0.9rem, 2.1vh, 1.15rem); color: #38bdf8; font-weight: 800; text-align: center; margin-bottom: 4px; }
+    .hourly-title { font-size: clamp(1rem, 2.3vh, 1.3rem); color: #38bdf8; font-weight: 800; text-align: center; margin-bottom: 4px; }
     .hourly-grid { display: flex; justify-content: space-around; }
     .hourly-item { text-align: center; flex: 1; }
-    .hourly-time { font-size: clamp(0.85rem, 2vh, 1.05rem); color: #94a3b8; font-weight: 700; }
-    .hourly-val { font-size: clamp(1rem, 2.4vh, 1.3rem); color: #38bdf8; font-weight: 900; }
+    .hourly-time { font-size: clamp(0.9rem, 2.1vh, 1.15rem); color: #94a3b8; font-weight: 700; }
+    .hourly-val { font-size: clamp(1.1rem, 2.6vh, 1.4rem); color: #38bdf8; font-weight: 900; }
 
     /* 5 天預報 */
     .forecast-grid { display: flex; justify-content: space-around; border-top: 2px solid #334155; padding-top: 8px; }
     .forecast-item { text-align: center; flex: 1; }
-    .forecast-date { font-size: clamp(0.8rem, 1.9vh, 1rem); color: #94a3b8; font-weight: 700; }
-    .forecast-day { font-size: clamp(0.95rem, 2.2vh, 1.2rem); color: #cbd5e1; font-weight: 800; }
-    .forecast-icon { font-size: clamp(1.2rem, 2.8vh, 1.7rem); }
-    .forecast-temp { font-weight: 800; font-size: clamp(0.9rem, 2.1vh, 1.15rem); color: #f8fafc; white-space: nowrap; }
+    .forecast-date { font-size: clamp(0.85rem, 2vh, 1.1rem); color: #94a3b8; font-weight: 700; }
+    .forecast-day { font-size: clamp(1rem, 2.3vh, 1.3rem); color: #cbd5e1; font-weight: 800; }
+    .forecast-icon { font-size: clamp(1.3rem, 3vh, 1.8rem); }
+    .forecast-temp { font-weight: 800; font-size: clamp(0.95rem, 2.2vh, 1.2rem); color: #f8fafc; white-space: nowrap; }
 
     @media (max-width: 768px) and (orientation: portrait) {
       body { flex-direction: column; padding: 8px; gap: 8px; }
       .btn-move { width: 32px; height: 32px; font-size: 1.1rem; }
-      .time-main { font-size: 3.2rem; }
-      .bus-route { font-size: 2.2rem; }
-      .bus-eta-main { font-size: 1.8rem; }
-      .temp-main { font-size: 3.5rem; }
+      .time-main { font-size: 4rem; }
+      .temp-main { font-size: 4rem; }
     }
   </style>
 </head>
@@ -277,7 +306,6 @@
   </div>
 
   <script>
-    // 排版儲存修復 (防止 localStorage 不支援時報錯)
     var cards = ['card-time', 'card-bus', 'card-weather'];
     function loadOrder() {
       try {
@@ -325,7 +353,6 @@
     }
     loadOrder();
 
-    // 基礎時間格式化（相容舊車機）
     function padZero(num) {
       return num < 10 ? '0' + num : '' + num;
     }
@@ -335,7 +362,6 @@
         var now = new Date();
         var days = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
 
-        // 本地香港時間
         var hours = now.getHours();
         var minutes = now.getMinutes();
         var seconds = now.getSeconds();
@@ -350,10 +376,8 @@
         document.getElementById('local-time').textContent = timeStr;
         document.getElementById('local-date').textContent = dateStr + ' (' + dayStr + ')';
 
-        // 倫敦時間 (UTC+0 / UTC+1 簡化計算)
         var utc = now.getTime() + (now.getTimezoneOffset() * 60000);
-        var londonOffset = 1; // 假設夏令時間 UTC+1
-        var londonTime = new Date(utc + (3600000 * londonOffset));
+        var londonTime = new Date(utc + (3600000 * 1));
         var lHours = londonTime.getHours();
         var lAmpm = lHours >= 12 ? 'PM' : 'AM';
         lHours = lHours % 12 || 12;
@@ -361,9 +385,7 @@
         document.getElementById('date-london').textContent = padZero(londonTime.getDate()) + '/' + padZero(londonTime.getMonth() + 1) + ' ' + days[londonTime.getDay()];
         document.getElementById('time-london').textContent = padZero(lHours) + ':' + padZero(londonTime.getMinutes()) + ':' + padZero(londonTime.getSeconds()) + ' ' + lAmpm;
 
-        // 法國時間 (UTC+2 夏令)
-        var parisOffset = 2;
-        var parisTime = new Date(utc + (3600000 * parisOffset));
+        var parisTime = new Date(utc + (3600000 * 2));
         var pHours = parisTime.getHours();
         var pAmpm = pHours >= 12 ? 'PM' : 'AM';
         pHours = pHours % 12 || 12;
@@ -378,7 +400,6 @@
     setInterval(updateClocks, 1000);
     updateClocks();
 
-    // 通用 HTTP 請求 (兼容 XMLHttpRequest)
     function httpGet(url, callback) {
       var xhr = new XMLHttpRequest();
       xhr.open('GET', url, true);
@@ -395,7 +416,22 @@
           }
         }
       };
+      xhr.onerror = function() {
+        callback('Network Error', null);
+      };
       xhr.send();
+    }
+
+    // 附帶 CORS Proxy 備用機制
+    function fetchWithProxy(url, callback) {
+      httpGet(url, function(err, data) {
+        if (!err && data) {
+          callback(null, data);
+        } else {
+          var proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(url);
+          httpGet(proxyUrl, callback);
+        }
+      });
     }
 
     var BUS_TARGETS = [
@@ -409,7 +445,7 @@
       for (var i = 0; i < BUS_TARGETS.length; i++) {
         (function(target) {
           var url = 'https://data.etabus.gov.hk/v1/transport/kmb/stop-eta/' + target.exactStopId;
-          httpGet(url, function(err, data) {
+          fetchWithProxy(url, function(err, data) {
             if (err || !data || !data.data) {
               document.getElementById(target.idPrefix + '-1').textContent = '無連線';
               return;
@@ -466,7 +502,7 @@
 
     function fetchHourlyRainForecast() {
       var url = 'https://api.open-meteo.com/v1/forecast?latitude=22.45&longitude=114.16&hourly=precipitation_probability&timezone=Asia%2FHong_Kong';
-      httpGet(url, function(err, data) {
+      fetchWithProxy(url, function(err, data) {
         if (!err && data && data.hourly && data.hourly.time) {
           var now = new Date();
           var html = '';
@@ -511,8 +547,7 @@
     }
 
     function fetchHKOData() {
-      // 天氣警告
-      httpGet('https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=warnsum&lang=tc', function(err, warnData) {
+      fetchWithProxy('https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=warnsum&lang=tc', function(err, warnData) {
         var warnEl = document.getElementById('weather-warning');
         if (!err && warnData && Object.keys(warnData).length > 0) {
           var warnings = [];
@@ -525,8 +560,7 @@
         }
       });
 
-      // 現時氣溫
-      httpGet('https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=rhrread&lang=tc', function(err, rhrData) {
+      fetchWithProxy('https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=rhrread&lang=tc', function(err, rhrData) {
         if (!err && rhrData && rhrData.temperature && rhrData.temperature.data) {
           for (var i = 0; i < rhrData.temperature.data.length; i++) {
             if (rhrData.temperature.data[i].place === '大埔') {
@@ -537,8 +571,7 @@
         }
       });
 
-      // 9天預報
-      httpGet('https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=fnd&lang=tc', function(err, fndData) {
+      fetchWithProxy('https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=fnd&lang=tc', function(err, fndData) {
         if (!err && fndData && fndData.weatherForecast && fndData.weatherForecast.length > 0) {
           var todayForecast = fndData.weatherForecast[0];
           var minT = todayForecast.forecastMintemp ? todayForecast.forecastMintemp.value : '--';
