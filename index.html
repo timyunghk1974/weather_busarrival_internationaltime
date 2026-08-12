@@ -18,27 +18,26 @@
 
     body {
       display: flex;
-      flex-direction: column;
-      gap: 1.2vh;
-      padding: 1.2vh 1.2vw;
+      flex-direction: row;
+      gap: 0.8vw;
+      padding: 0.8vh 0.8vw;
     }
 
-    /* 三個卡片均等瓜分螢幕區域 */
     .card {
-      flex: 1; /* 設定均等比例 (1:1:1) */
+      flex: 1;
       background: #1e293b;
       border-radius: 12px;
-      padding: 1.2vh 1.5vw;
+      padding: 1vh 1vw;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
       border: 1px solid #334155;
       position: relative;
       transition: order 0.3s ease;
-      min-height: 0;
+      min-width: 0;
+      height: 100%;
     }
 
-    /* 右上角切換順序按鈕 */
     .controls {
       position: absolute;
       top: 6px;
@@ -51,10 +50,10 @@
       background: #334155;
       color: #38bdf8;
       border: none;
-      width: 28px;
-      height: 28px;
+      width: 32px;
+      height: 32px;
       border-radius: 6px;
-      font-size: 0.9rem;
+      font-size: 1rem;
       font-weight: bold;
       cursor: pointer;
       display: flex;
@@ -63,7 +62,7 @@
     }
     .btn-move:active { background: #0284c7; color: #fff; }
 
-    /* 區塊 1：時間 */
+    /* 區塊 1：香港時間 */
     #card-time { order: 1; }
     .time-header { 
       display: flex; 
@@ -74,36 +73,36 @@
       flex: 1;
     }
     .time-main { 
-      font-size: clamp(2.0rem, 6.5vh, 4.0rem); 
+      font-size: clamp(2.5rem, 6.5vw, 5rem); 
       font-weight: 900; 
       color: #38bdf8; 
       font-family: monospace; 
       line-height: 1; 
       letter-spacing: -1px; 
     }
-    .tz-label { font-size: clamp(0.75rem, 1.8vh, 0.95rem); color: #f59e0b; font-weight: 800; margin-top: 2px; }
-    .date-main { font-size: clamp(0.85rem, 2vh, 1.1rem); color: #cbd5e1; font-weight: 700; }
+    .tz-label { font-size: clamp(1.1rem, 2.8vh, 1.6rem); color: #f59e0b; font-weight: 900; margin-top: 8px; }
+    .date-main { font-size: clamp(1.3rem, 3.2vh, 2rem); color: #cbd5e1; font-weight: 800; margin-top: 6px; }
     
     /* 世界時鐘 */
-    .world-clocks { display: flex; justify-content: space-around; border-top: 1px solid #334155; padding-top: 4px; }
+    .world-clocks { display: flex; justify-content: space-around; border-top: 2px solid #334155; padding-top: 8px; }
     .clock-item { text-align: center; flex: 1; }
-    .clock-label { font-size: clamp(0.75rem, 1.8vh, 1.0rem); color: #38bdf8; font-weight: 900; }
-    .clock-date { font-size: clamp(0.65rem, 1.5vh, 0.85rem); color: #cbd5e1; font-weight: 700; }
-    .clock-val { font-size: clamp(0.85rem, 2.2vh, 1.2rem); font-weight: 900; color: #38bdf8; font-family: monospace; }
+    .clock-label { font-size: clamp(1.1rem, 2.8vh, 1.6rem); color: #38bdf8; font-weight: 900; }
+    .clock-date { font-size: clamp(0.95rem, 2.2vh, 1.3rem); color: #cbd5e1; font-weight: 700; margin-top: 2px; }
+    .clock-val { font-size: clamp(1.4rem, 3.5vh, 2rem); font-weight: 900; color: #38bdf8; font-family: monospace; margin-top: 2px; }
 
-    /* 區塊 2：巴士實時到站 */
+    /* 區塊 2：巴士實時到站（字體全面加大） */
     #card-bus { order: 2; }
-    .bus-header { font-size: clamp(0.85rem, 2vh, 1.1rem); font-weight: 800; color: #f59e0b; display: flex; justify-content: space-between; align-items: center; }
-    .bus-list { display: flex; flex-direction: column; gap: 0.6vh; justify-content: space-evenly; height: 100%; }
-    .bus-item { display: flex; justify-content: space-between; align-items: center; background: #0f172a; padding: 0.5vh 10px; border-radius: 8px; }
+    .bus-header { font-size: clamp(1.2rem, 3vh, 1.7rem); font-weight: 900; color: #f59e0b; display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+    .bus-list { display: flex; flex-direction: column; gap: 0.8vh; justify-content: space-between; flex: 1; }
+    .bus-item { display: flex; justify-content: space-between; align-items: center; background: #0f172a; padding: 1vh 14px; border-radius: 8px; flex: 1; }
     .bus-info { display: flex; flex-direction: column; }
-    .bus-route-group { display: flex; align-items: center; gap: 6px; }
-    .bus-route { font-size: clamp(1.1rem, 2.6vh, 1.5rem); font-weight: 900; color: #facc15; line-height: 1; }
-    .bus-stop { font-size: clamp(0.65rem, 1.5vh, 0.8rem); color: #38bdf8; background: #1e293b; padding: 1px 5px; border-radius: 4px; font-weight: 700; }
-    .bus-dest { font-size: clamp(0.7rem, 1.6vh, 0.85rem); color: #cbd5e1; font-weight: 600; }
+    .bus-route-group { display: flex; align-items: center; gap: 10px; }
+    .bus-route { font-size: clamp(2.2rem, 5vh, 3rem); font-weight: 900; color: #facc15; line-height: 1; }
+    .bus-stop { font-size: clamp(1rem, 2.2vh, 1.3rem); color: #38bdf8; background: #1e293b; padding: 3px 8px; border-radius: 4px; font-weight: 800; }
+    .bus-dest { font-size: clamp(1.1rem, 2.5vh, 1.4rem); color: #e2e8f0; font-weight: 700; margin-top: 4px; }
     .bus-eta-group { text-align: right; }
-    .bus-eta-main { font-size: clamp(0.95rem, 2.3vh, 1.3rem); font-weight: 900; color: #4ade80; }
-    .bus-eta-sub { font-size: clamp(0.65rem, 1.5vh, 0.8rem); font-weight: 700; color: #94a3b8; }
+    .bus-eta-main { font-size: clamp(1.6rem, 4vh, 2.4rem); font-weight: 900; color: #4ade80; }
+    .bus-eta-sub { font-size: clamp(1.05rem, 2.3vh, 1.35rem); font-weight: 800; color: #94a3b8; margin-top: 2px; }
 
     /* 區塊 3：天氣 */
     #card-weather { order: 3; }
@@ -113,50 +112,53 @@
       align-items: center; 
       justify-content: center;
       text-align: center;
-      flex: 1;
+      flex: 1.5;
     }
-    .weather-title { font-size: clamp(0.85rem, 2vh, 1.1rem); color: #38bdf8; font-weight: 800; }
+    .weather-title { font-size: clamp(1.2rem, 3vh, 1.7rem); color: #38bdf8; font-weight: 900; }
     
     .weather-main-group {
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 12px;
+      gap: 16px;
+      margin: 8px 0;
     }
-    .weather-text { font-size: clamp(0.85rem, 2vh, 1.1rem); color: #f8fafc; font-weight: 800; display: flex; align-items: center; gap: 4px; }
-    .weather-icon { font-size: clamp(1.2rem, 3vh, 1.8rem); line-height: 1; }
+    .weather-text { font-size: clamp(1.4rem, 3.5vh, 2rem); color: #f8fafc; font-weight: 900; display: flex; align-items: center; gap: 8px; }
+    .weather-icon { font-size: clamp(2.5rem, 6.5vh, 4rem); line-height: 1; }
     
     .temp-box { display: flex; flex-direction: column; align-items: center; }
-    .temp-main { font-size: clamp(1.6rem, 4vh, 2.5rem); font-weight: 900; color: #38bdf8; line-height: 1; }
-    .temp-range { font-size: clamp(0.7rem, 1.6vh, 0.85rem); font-weight: 800; color: #cbd5e1; }
+    .temp-main { font-size: clamp(3rem, 7.5vh, 5rem); font-weight: 900; color: #38bdf8; line-height: 0.9; }
+    .temp-range { font-size: clamp(1.1rem, 2.6vh, 1.5rem); font-weight: 800; color: #cbd5e1; margin-top: 4px; }
 
-    .weather-extra-info { display: flex; align-items: center; gap: 8px; margin-top: 2px; }
-    .rain-prob { font-size: clamp(0.65rem, 1.5vh, 0.8rem); font-weight: 800; color: #38bdf8; background: #0f172a; padding: 1px 6px; border-radius: 4px; border: 1px solid #334155; }
-    .weather-warning { font-size: clamp(0.65rem, 1.5vh, 0.8rem); font-weight: 800; color: #ef4444; background: #451a1a; padding: 1px 6px; border-radius: 4px; border: 1px solid #7f1d1d; }
+    .weather-extra-info { display: flex; align-items: center; gap: 12px; margin-top: 8px; }
+    .rain-prob { font-size: clamp(0.95rem, 2.3vh, 1.25rem); font-weight: 800; color: #38bdf8; background: #0f172a; padding: 4px 10px; border-radius: 6px; border: 1px solid #334155; }
+    .weather-warning { font-size: clamp(0.95rem, 2.3vh, 1.25rem); font-weight: 800; color: #ef4444; background: #451a1a; padding: 4px 10px; border-radius: 6px; border: 1px solid #7f1d1d; }
     .weather-warning.none { color: #94a3b8; background: #0f172a; border-color: #334155; }
 
     /* 未來 5 小時降雨 */
-    .hourly-rain-box { background: #0f172a; border-radius: 6px; padding: 4px; margin: 3px 0; border: 1px solid #334155; }
-    .hourly-title { font-size: clamp(0.6rem, 1.4vh, 0.75rem); color: #38bdf8; font-weight: 800; text-align: center; }
+    .hourly-rain-box { background: #0f172a; border-radius: 8px; padding: 8px; margin: 8px 0; border: 1px solid #334155; }
+    .hourly-title { font-size: clamp(0.9rem, 2.1vh, 1.15rem); color: #38bdf8; font-weight: 800; text-align: center; margin-bottom: 4px; }
     .hourly-grid { display: flex; justify-content: space-around; }
     .hourly-item { text-align: center; flex: 1; }
-    .hourly-time { font-size: clamp(0.55rem, 1.3vh, 0.7rem); color: #94a3b8; font-weight: 700; }
-    .hourly-val { font-size: clamp(0.65rem, 1.5vh, 0.8rem); color: #38bdf8; font-weight: 900; }
+    .hourly-time { font-size: clamp(0.85rem, 2vh, 1.05rem); color: #94a3b8; font-weight: 700; }
+    .hourly-val { font-size: clamp(1rem, 2.4vh, 1.3rem); color: #38bdf8; font-weight: 900; }
 
     /* 5 天預報 */
-    .forecast-grid { display: flex; justify-content: space-around; border-top: 1px solid #334155; padding-top: 2px; }
+    .forecast-grid { display: flex; justify-content: space-around; border-top: 2px solid #334155; padding-top: 8px; }
     .forecast-item { text-align: center; flex: 1; }
-    .forecast-date { font-size: clamp(0.6rem, 1.4vh, 0.75rem); color: #94a3b8; font-weight: 700; }
-    .forecast-day { font-size: clamp(0.65rem, 1.5vh, 0.8rem); color: #cbd5e1; font-weight: 800; }
-    .forecast-icon { font-size: clamp(0.8rem, 1.8vh, 1.1rem); }
-    .forecast-temp { font-weight: 800; font-size: clamp(0.65rem, 1.5vh, 0.8rem); color: #f8fafc; white-space: nowrap; }
+    .forecast-date { font-size: clamp(0.8rem, 1.9vh, 1rem); color: #94a3b8; font-weight: 700; }
+    .forecast-day { font-size: clamp(0.95rem, 2.2vh, 1.2rem); color: #cbd5e1; font-weight: 800; }
+    .forecast-icon { font-size: clamp(1.2rem, 2.8vh, 1.7rem); }
+    .forecast-temp { font-weight: 800; font-size: clamp(0.9rem, 2.1vh, 1.15rem); color: #f8fafc; white-space: nowrap; }
 
-    @media (max-width: 600px) and (orientation: portrait) {
-      body { padding: 8px; gap: 8px; }
+    /* 直向螢幕自動切換為上下排列 */
+    @media (max-width: 768px) and (orientation: portrait) {
+      body { flex-direction: column; padding: 8px; gap: 8px; }
       .btn-move { width: 32px; height: 32px; font-size: 1.1rem; }
-      .time-main { font-size: 2.8rem; }
-      .bus-route { font-size: 1.3rem; }
-      .temp-main { font-size: 2.2rem; }
+      .time-main { font-size: 3.2rem; }
+      .bus-route { font-size: 2.2rem; }
+      .bus-eta-main { font-size: 1.8rem; }
+      .temp-main { font-size: 3.5rem; }
     }
   </style>
 </head>
@@ -165,8 +167,8 @@
   <!-- 時間區塊 -->
   <div class="card" id="card-time">
     <div class="controls">
-      <button class="btn-move" onclick="moveCard('card-time', -1)">▲</button>
-      <button class="btn-move" onclick="moveCard('card-time', 1)">▼</button>
+      <button class="btn-move" onclick="moveCard('card-time', -1)">◀</button>
+      <button class="btn-move" onclick="moveCard('card-time', 1)">▶</button>
     </div>
     <div class="time-header">
       <div class="time-main" id="local-time">--:--:-- AM</div>
@@ -190,8 +192,8 @@
   <!-- 巴士實時區塊 -->
   <div class="card" id="card-bus">
     <div class="controls">
-      <button class="btn-move" onclick="moveCard('card-bus', -1)">▲</button>
-      <button class="btn-move" onclick="moveCard('card-bus', 1)">▼</button>
+      <button class="btn-move" onclick="moveCard('card-bus', -1)">◀</button>
+      <button class="btn-move" onclick="moveCard('card-bus', 1)">▶</button>
     </div>
     <div class="bus-header">
       <span>🚌 大埔巴士實時到站</span>
@@ -262,8 +264,8 @@
   <!-- 天氣區塊 -->
   <div class="card" id="card-weather">
     <div class="controls">
-      <button class="btn-move" onclick="moveCard('card-weather', -1)">▲</button>
-      <button class="btn-move" onclick="moveCard('card-weather', 1)">▼</button>
+      <button class="btn-move" onclick="moveCard('card-weather', -1)">◀</button>
+      <button class="btn-move" onclick="moveCard('card-weather', 1)">▶</button>
     </div>
     <div class="weather-current">
       <div class="weather-title">大埔天氣</div>
@@ -284,7 +286,7 @@
       </div>
     </div>
 
-    <!-- 未來 5 小時每小時降雨機率 -->
+    <!-- 未來 5 小時降雨 -->
     <div class="hourly-rain-box">
       <div class="hourly-title">🌧️ 未來 5 小時逐小時降雨預報</div>
       <div class="hourly-grid" id="hourly-rain-container"></div>
